@@ -10,7 +10,7 @@
 #             - Adding user defined region concordance to make user defined aggregations
 
 # PACKAGES
-BasePackages <- c("foreign", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "haven")
+BasePackages <- c("readr", "readxl", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "haven")
 lapply(BasePackages, library, character.only = TRUE)
 AdditionalPackages <- c("gdxrrw")
 lapply(AdditionalPackages, library, character.only = TRUE)
@@ -22,9 +22,7 @@ igdx(GAMSPath)
 # Make sure GDX2HAR.exe and gdxiomh.dll are located in one folder.
 
 # Set working folder
-#wdPath <- "D:\\Kuiper\\HHS_BIOF"
-wdPath <- "D:\\Shutes\\FOODSECURE"
-#wdPath <- "T:\\Shutes\\FOODSECURE"
+wdPath <- "D:\\Jason\\MAGNET_PBL_SSP_PPP_NUTcor2noCCcor"
 setwd(wdPath)  
 
 # Functions
@@ -50,9 +48,8 @@ dataResultPath <- "./4_MAGNET/Results"
 if (!file.exists(dataResultPath)) dir.create(dataResultPath) 
 
 # Define scenarios, periods and project
-scenarios<-c("FFANF_qpc_ti3_st", "ONEPW_qpc_ti3_st", "TLTL_qpc_ti3_st", "ECO_qpc_ti3_st")
-periods<-c("2007-2010", "2010-2020", "2020-2030", "2030-2040", "2040-2050")
-#project<-""
+scenarios<-c("SSP1a_FLC3_M", "SSP2a_FLC3", "SSP3a_FLC3_M", "SSP1a_FLC3_M_clim6", "SSP2a_FLC3_clim6", "SSP3a_FLC3_M_clim6")
+periods<-c("2007-2010", "2010-2020", "2020-2030", "2030-2050")
 
 # Create lookup table for update files
 sourcefile<-c("update")
@@ -112,40 +109,9 @@ names(lookup_slc) <- c("scenario", "period", "sourcefile", "start", "year")
 lookup_slc$harSourceFiles <- paste(with(lookup_slc, paste(scenario, period, sourcefile, sep="_")), ".slc", sep="")
 lookup_slc$gdxResultFiles <- paste(with(lookup_slc, paste(scenario, period, destinationfile, sep="_")), ".gdx", sep="")
 
-# convert base files to gdx
-############### NB there are warnings in the conversion! CHECK
-# NB: in many cases only one scenartio is used to update MAGNET from the GTAP base year to the latest historical year (e.g. from 2007 to 2010)
-# In this cases there is a warning that some files could not be converted from har to gdx (because they do not exist)
-# This information is needed for all scenarios to update constant volumes and therefore the results for this period need to be copied to other scenarios.
-# Below some raw code to do this (unfinished)# 
+######## CONVERT FILES
 
-# 
-# # select 
-# 
-# dir.create("..\\4_MAGNET\\Results\\TEMP") 
-# 
-# 
-# # RENAME SHOCK FILES
-# # Read filenames to be renamed Shocks2040-2050
-# # Files are copied to a shock folder for each of the scenarios and then copied back to the shock folder
-# scenario <- "nocc"
-# # Create folder
-# dir.create(scenario) 
-# # Collect base shock file names
-# BaseShockFiles <- list.files(path = wdpath, pattern = "Shocks[0-9]{4}[-][0-9]{4}.HAR", full.names=FALSE)
-# # Copy files to scenario folder
-# file.copy(BaseShockFiles, to = scenario)
-# # Create new file names
-# NewShockFiles <- BaseShockFiles %>% 
-#   sub("\\.[[:alnum:]]+$", "",.) %>%
-#   paste(., "_", scenario, ".HAR", sep="")
-# # Rename files
-# file.rename(from = file.path(scenario, BaseShockFiles), to = file.path(scenario, NewShockFiles))
-# # Copy new files back to main shock folder
-# file.copy(file.path(scenario, NewShockFiles), to = wdpath)
-# 
-
-# # Add base period GDX files
+# Add base period GDX files
 apply(BaseDataFiles, 1, function(x) har2gdx.f(file.path(dataBasePath, x[1]), file.path(dataResultPath, x[2])))
 
 # Convert update files to GDX
