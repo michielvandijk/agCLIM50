@@ -1,4 +1,4 @@
-# PROJECT: FOODSECURE WP7
+# PROJECT: agCLIM50
 # ``````````````````````````````````````````````````````````````````````````````````````````````````
 # ``````````````````````````````````````````````````````````````````````````````````````````````````
 # Merge resuls from different models
@@ -6,7 +6,7 @@
 # `````````````````````````````````````````````````````````````````````````````````````````````````` 
 
 # PACKAGES
-BasePackages <- c("foreign", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "openxlsx")
+BasePackages <- c("foreign", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "dplyr", "ggplot2", "readxl", "readr")
 lapply(BasePackages, library, character.only = TRUE)
 #SpatialPackages <- c("rgdal", "gdalUtils", "ggmap", "raster", "rasterVis", "rgeos", "sp", "mapproj", "maptools", "proj4")
 #lapply(SpatialPackages, library, character.only = TRUE)
@@ -14,9 +14,10 @@ AdditionalPackages <-  c("WDI", "countrycode")
 lapply(AdditionalPackages, library, character.only = TRUE)
 
 # SET PATHS
-wdPath<-"D:\\Dropbox\\FOODSECURE Scenarios"
+wdPath<-"D:\\Data\\Projects\\agCLIM50"
 setwd(wdPath)
 
+dataPath <- "D:\\Dropbox\\AgClim50 scenario results"
 
 # R SETTINGS
 options(scipen=99) # surpress scientific notation
@@ -41,93 +42,47 @@ ma <- function(x,n=5){stats::filter(x,rep(1/n,n), sides=2)}
 #   unique()
 
 
-# Read data per model
-# GLOBIOM
+## Read data per model
+
+# MAgPIE
 # Process
-GLOBIOM <- read.csv("./Results/GLOBIOM_FoodSecure_7jun16.csv") %>% 
-  rename(variable = Var, sector = Item, scenario = Scen, year = Year, value = Val, FSregion = Reg, unit = Unit) %>% 
-  mutate(model = "GLOBIOM", 
-         variable =toupper(variable), 
-         sector=toupper(sector),
-         FSregion = revalue(FSregion, c("1_SubSaharanAfrica" = "SSA",
-                                      "1_LatinAmerica" = "LAC",
-                                      "1_MENA" = "MENA",
-                                      "1_EastAsia" = "EASIA",
-                                      "1_EU28" = "EU",
-                                      "1_SouthAsia" = "SASIA",
-                                      "1_Other" = "ROW",
-                                      "WLD" = "WLD"))) %>%
-  filter(FSregion %in% c("SSA", "LAC", "MENA", "EASIA", "EU", "SASIA", "ROW", "WLD")) 
-xtabs(~GLOBIOM$sector + GLOBIOM$variable)
-
-# Check if there are variables with missing information for 2010
-# There are a few combination in GLOBIOM that lack 2010 data
-check <- GLOBIOM %>%
-  arrange(model, scenario, FSregion, sector, variable, year) %>%
-  group_by(model, scenario, FSregion, sector, variable) %>%
-  filter(!any(year==2010))
-# write.csv(check, file = "./Results/GLOBIOMmiss.csv", row.names = F)
-
-GLOBIOM <- GLOBIOM %>%
-  arrange(model, scenario, FSregion, sector, variable, year) %>%
-  group_by(model, scenario, FSregion, sector, variable) %>%
-  filter(any(year==2010)) # to remove values with missing 2010 CHECK with AREA!!??
-xtabs(~sector + variable, data = GLOBIOM)
-
-# IMAGE
-IMAGE2FSRegion <- read.csv("./Mappings/IMAGE2FSRegion.csv")
-
-# Process
-IMAGE <- read.xlsx("./Results/AllScen_IMAGE_FSregions.xlsx") %>% 
-  gather(year, value, -Model:-Unit) %>%
-  rename(sector = Variable, scenario = Scenario, model = Model, unit = Unit, region = Region) %>%
-  filter(sector %in% c("AREA|OILSEEDS", "AREA|RICE", "AREA|WHT", "FRTN", "LAND|Built-up Area",
-                       "LAND|Cropland", "LAND|Cropland|Energy Crops", "LAND|Forest", "LAND|Other Arable Land",                     
-                       "LAND|Other Land", "LAND|Pasture")) %>%
-  mutate(year = as.numeric(year),
-         scenario = revalue(scenario, c("FFNF" = "FFANF")),
-         sector = toupper(revalue(sector, c("LAND|Cropland|Energy Crops" = "LAND|EneCrp",
-                                            "LAND|Cropland" = "LAND|CrpLnd",
-                                            "LAND|Pasture" = "LAND|GrsLnd")))) %>%
-  separate(sector, c("variable", "sector"), sep = "\\|", fill = "right") %>%
-  mutate(value = ifelse(sector %in% c("WHT", "RICE", "OILSEEDS"), value/1000, value),
-         unit = ifelse(sector %in% c("WHT", "RICE", "OILSEEDS"), "1000 ha", unit),
-         unit = ifelse(unit == "million ha", "Mha", unit)
-         ) %>%
-  left_join(.,IMAGE2FSRegion) %>%
-  group_by(model, scenario, variable, sector, unit, year, FSregion) %>%
-  summarize(
-    value = sum(value))
-
-# Aggregates
-# CHECK sum of RICE, WHT, OILSEEDS
-IMAGE_CRP_AREA <- IMAGE %>%
-              filter(variable %in% "AREA") %>%
-              group_by(model, scenario, variable, year, unit, FSregion) %>%
-              summarize(value = sum(value, na.rm = T)) %>%
-              mutate(sector = "CRP")
-
-IMAGE <- rbind(IMAGE, IMAGE_CRP_AREA) %>% ungroup; rm(IMAGE_CRP_AREA)
-xtabs(~sector + variable, data = IMAGE)
+MAgPIE <- read_csv(file.path(dataPath, "agclim50_MAgPIE.csv")) 
 
 # Check
-unique(IMAGE$variable)
-unique(IMAGE$sector)
-xtabs(~IMAGE$variable + IMAGE$sector)
-check <- filter(IMAGE, is.na(sector)) # FRTN lacks a sector
+summary(MAgPIE)
+xtabs(~Item + Variable, data = MAgPIE)
+
+# Some values are infinite => set to NA
+inf <- filter(MAgPIE, is.infinite(Value))
+MAgPIE$Value[is.infinite(MAgPIE$Value)] <- NA
+
+# Rename several items that have wrong name
+# CHECK WITH MAgPIE about other names..
+MAgPIE$Item[MAgPIE$Item == "LVS"] <- "LSP"
+MAgPIE$Item[MAgPIE$Item == "SUG"] <- "SGC"
+
+# Check if there are variables with missing information for 2010
+# There are a few combination in MAgPIE that lack 2010 data
+check <- MAgPIE %>%
+  arrange(Model, Scenario, Region, Item, Variable, Year) %>%
+  group_by(Model, Scenario, Region, Item, Variable) %>%
+  filter(!any(Year==2010))
+
+# Remove series with missing values in 2010
+MAgPIE <- MAgPIE %>%
+  arrange(Model, Scenario, Region, Item, Variable, Year) %>%
+  group_by(Model, Scenario, Region, Item, Variable) %>%
+  filter(any(Year==2010)) 
+xtabs(~Item + Variable, data = MAgPIE)
 
 
 # MAGNET
-MAGNET <- read.csv("./Results/MAGNET_FoodSecure_2016-08-02.csv") %>%
-            rename(sector = FSsector)
+MAGNET <- read_csv(file.path(dataPath, "MAGNET_agCLIM50_2016-08-31.csv")) %>%
+            rename(Year = year, Model = model, Scenario = scenario, Region = region, Item = sector, Variable = variable, Unit = unit, Value = value)
 
 # Bind in one file
-SIMULATION <- rbind(MAGNET, IMAGE, GLOBIOM) %>% 
-              filter(year>=2010)
-
-TOTAL <- SIMULATION
-
-
+TOTAL <- rbind(MAGNET, MAgPIE) %>% 
+              filter(Year>=2010)
 
 # Index (2010=100)
 # CHECK: GLOBIOM has various results for CALO with different units
@@ -135,49 +90,13 @@ TOTAL <- SIMULATION
 # CHECK: product groups GLOBION. VFN = V_F? AGR in MAGNET?
 # CHECK HARMONISATION FOOD GROUPS IN TEMPLATE.
 
-TOTAL2 <- TOTAL %>%
-  arrange(model, scenario, FSregion, sector, variable, year) %>%
-  group_by(model, scenario, FSregion, sector, variable, unit) %>%
-  mutate(index = value/value[year==2010]*100) %>%
-  arrange(model, scenario, variable, FSregion, sector, year)
+TOTAL <- TOTAL %>%
+  arrange(Model, Scenario, Region, Item, Variable, Year) %>%
+  group_by(Model, Scenario, Region, Item, Variable, Unit) %>%
+  mutate(index = Value/Value[Year==2010]*100) %>%
+  arrange(Model, Scenario, Variable, Region, Item, Year)
 
-xtabs(~model + variable, data = TOTAL2)
-xtabs(~model + sector, data = TOTAL2)
-
-write.csv(TOTAL2, "Results/TOTAL.csv", row.names = F)
-
-# Calculate total land
-
-data.land <- TOTAL %>%
-              filter(sector %in% c("CRPLND", "GRSLND")) %>%
-              group_by(model, FSregion, variable, scenario, year, unit) %>%
-              summarize(value = sum(value)) %>%
-              rename(Val = value, Scen = scenario, Year = year, Model = model) %>%
-              filter(FSregion == "WLD") %>%
-              mutate(Item = "AGRLND")
-
-# Combine with historical data
-# Load historial data and add 3 year moving average
-HIST <- read.csv(file.path(dataPath, "FAOSTAT\\FAOSTAT_hist_2015-09-24.csv")) %>% 
-        group_by(Model, Scenario, Region, Sector, Variable) %>% 
-        mutate(Value = as.numeric(ma(Value))) %>% # 3-year smoother
-        ungroup() %>% 
-        as.data.frame(.) 
-
-TOTAL <- rbind(HIST, SIMULATION)  
-
-
-# File for DataM
-DataM <- filter(TOTAL2, Variable %in% c("AREA", "PROD")) %>%
-          select(-Value) %>%
-          rename(Value = index)
-write.csv(DataM, file.path(dataPath, "DataM_test.csv"), row.names = F)
-
-xtabs(~Year + Region, data = HIST)
-
-# Calculations
-prodgr <- filter(MAGNET, variable == "PROD" & sector == "FOOD" & FSregion == "WLD") %>%
-          group_by(scenario) %>%
-          mutate(growth = ((value/value[year == 2010])-1)*100) %>%
-          filter(year == 2050)
-prodgr
+xtabs(~Model + Variable, data = TOTAL2)
+xtabs(~Model + Item, data = TOTAL2)
+xtabs(~Model + Scenario, data = TOTAL2)
+write_csv(TOTAL, file.path(dataPath, "TOTAL.csv"))
