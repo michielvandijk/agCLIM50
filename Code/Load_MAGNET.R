@@ -3,7 +3,7 @@
 #######################################################
 
 # PACKAGES
-BasePackages <- c("lazyeval", "foreign", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "haven")
+BasePackages <- c("readr", "lazyeval", "foreign", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "haven")
 lapply(BasePackages, library, character.only = TRUE)
 AdditionalPackages <- c("gdxrrw", "micEcon")
 lapply(AdditionalPackages, library, character.only = TRUE)
@@ -15,15 +15,14 @@ igdx(GAMSPath)
 # Make sure GDX2HAR.exe and gdxiomh.dll are located in one folder.
 
 # Set working folder
-#wdPath <- "D:\\Kuiper\\HHS_BIOF"
-wdPath <- "D:\\R\\FSWP7"
-#wdPath <- "T:\\Shutes\\FOODSECURE"
+wdPath <- "D:\\Jason\\MAGNET_PBL_SSP_PPP_NUTcor2noCCcor"
 setwd(wdPath)  
-dataPath <- "D:\\Shutes\\FOODSECURE/R"
-dataResultPath <- "D:\\Shutes\\FOODSECURE/4_MAGNET/Results"
+
+# Set data result path
+dataResultPath <- "./4_MAGNET/Results"
 
 # Source functions
-source(".\\Code\\Load_Magnet_f.r")
+source("D:\\R\\agCLIM50\\Code\\Load_Magnet_f.r")
 
 # R SETTINGS
 options(scipen=999) # surpress scientific notation
@@ -31,11 +30,8 @@ options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e
 options(digits=4)
 
 # Define scenarios, periods, path, project, sourcefile and 
-#scenarios<-c("FFANF_qpc_t_st", "ONEPW_qpc_t_st", "TLTL_qpc_t_st", "ECO_qpc_t_st")
-#scenarios<-c("FFANF_qpc_ti_st", "ONEPW_qpc_ti_st", "TLTL_qpc_ti_st", "ECO_qpc_ti_st")
-scenarios<-c("FFANF_qpc_ti3_st", "ONEPW_qpc_ti3_st", "TLTL_qpc_ti3_st", "ECO_qpc_ti3_st")
-periods<-c("2007-2010", "2010-2020", "2020-2030", "2030-2040", "2040-2050")
-#project<-""
+scenarios<-c("SSP1a_FLC3_M", "SSP2a_FLC3", "SSP3a_FLC3_M", "SSP1a_FLC3_M_clim6", "SSP2a_FLC3_clim6", "SSP3a_FLC3_M_clim6")
+periods<-c("2007-2010", "2010-2020", "2020-2030", "2030-2050")
 
 # create lookup table for update files
 sourcefile<-c("update")
