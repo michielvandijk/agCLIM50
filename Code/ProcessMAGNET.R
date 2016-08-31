@@ -2,9 +2,6 @@
 ##### PROCESS MAGNET VARIABLES             ############
 #######################################################
 
-# GDPpc across models
-
-
 ### FUNCTIONS
 # Simple aggregation over sectors using mapping
 subtot_f <-function(df, grp, tvar, map){
@@ -29,95 +26,58 @@ wsubtot_f <-function(df, grp, tvar, weight, map){
     ungroup
 }
 
+projectPath <- "D:\\R\\agCLIM50" 
 
 ### CREATE MAPPINGS
 # Load concordance table MAGNET2FS
-MAGNET2FS_REG <- read.csv(file.path(dataPath, "Concordance\\MAGNET2FS_REG.csv")) %>%
-  rename(REG = FS_MAGNET) %>%
+regMAGNET2agCLIM50 <- read_csv(file.path(projectPath, "Mappings/regMAGNET2agCLIM50.csv")) %>%
   unique()
 
-MAGNET2FS_SEC <- read.csv(file.path(dataPath, "Concordance\\FStoMAGNETSectorAggregation.csv"), na.strings = "") %>%
-  dplyr::rename(sector = FS_sector_code, TRAD_COMM = FS_MAGNET_sector_name) %>%
-  dplyr::filter(!is.na(sector)) %>% # remove unmapped feed sector in MAGNET
+secMAGNET2agCLIM50 <- read_csv(file.path(projectPath, "Mappings/secMAGNET2agCLIM50.csv")) %>%
+  dplyr::select(-Note) %>%
   unique()
 
 # Create regional and sectoral mappings
-map_fsreg <- MAGNET2FS_REG %>%
-  select(REG, FSregion = FS_region2) %>%
+map_reg <- regMAGNET2agCLIM50 %>%
+  select(REG, region) %>%
   na.omit %>%
   unique
 
-map_wld <- MAGNET2FS_REG %>%
-  select(REG, FSregion = World) %>%
+map_con <- regMAGNET2agCLIM50 %>%
+  select(REG, region = con) %>%
   na.omit %>%
   unique
 
-map_af <- MAGNET2FS_REG %>%
-  select(REG, FSregion = FS_region3) %>%
-  mutate(FSregion = zap_empty(FSregion)) %>%
+map_wld <- regMAGNET2agCLIM50 %>%
+  select(REG, region = wld) %>%
   na.omit %>%
   unique
 
-map_hh <- MAGNET2FS_REG %>%
-  select(REG, FSregion = FS_hhregion) %>%
-  mutate(FSregion = zap_empty(FSregion)) %>%
+map_sec <- secMAGNET2agCLIM50 %>%
+  select(TRAD_COMM, sector = sec) %>%
   na.omit %>%
   unique
 
-map_cer <- MAGNET2FS_SEC %>%
-  transmute(TRAD_COMM, FSsector = cer) %>%
+map_crp <- secMAGNET2agCLIM50 %>%
+  select(TRAD_COMM, sector = crp) %>%
   na.omit %>%
   unique
 
-map_food <- MAGNET2FS_SEC %>%
-  transmute(TRAD_COMM, FSsector = food) %>%
+map_lsp <- secMAGNET2agCLIM50 %>%
+  select(TRAD_COMM, sector = lsp) %>%
   na.omit %>%
   unique
 
-map_crp <- MAGNET2FS_SEC %>%
-  transmute(TRAD_COMM, FSsector = crp) %>%
+map_agr <- secMAGNET2agCLIM50 %>%
+  select(TRAD_COMM, sector = agr) %>%
   na.omit %>%
   unique
 
-map_lsp <- MAGNET2FS_SEC %>%
-  transmute(TRAD_COMM, FSsector = lsp) %>%
+map_tot <- secMAGNET2agCLIM50 %>%
+  select(TRAD_COMM, sector = tot) %>%
   na.omit %>%
   unique
 
-map_agr <- MAGNET2FS_SEC %>%
-  transmute(TRAD_COMM, FSsector = agr) %>%
-  na.omit %>%
-  unique
-
-map_sec <- MAGNET2FS_SEC %>%
-  transmute(TRAD_COMM, FSsector = sec) %>%
-  na.omit %>%
-  unique
-
-map_primfood <- MAGNET2FS_SEC %>%
-  transmute(TRAD_COMM, FSsector = primfood) %>%
-  na.omit %>%
-  unique
-
-map_anml <- MAGNET2FS_SEC %>%
-  transmute(TRAD_COMM, FSsector = anml) %>%
-  na.omit %>%
-  unique
-
-map_tot <- MAGNET2FS_SEC %>%
-  transmute(TRAD_COMM, FSsector = tot) %>%
-  na.omit %>%
-  unique
-
-map_sec_M <- MAGNET2FS_SEC %>%
-  transmute(TRAD_COMM, FSsector = sec_M) %>%
-  na.omit %>%
-  unique
-
-map_tot_M <- MAGNET2FS_SEC %>%
-  transmute(TRAD_COMM, FSsector = tot_M) %>%
-  na.omit %>%
-  unique
 
  
 # ### TEST df
@@ -143,7 +103,7 @@ MAGNET1_raw <- list()
 #### AREA: harvested and grazed area
 # MAGNET: land demand per sector (km2) = AREA
 # Note: several countries have multiple land types, here only GHA. As "ENDWL_COMM" is not in the grouping variable. These are summed.
-MAGNET1_raw[["AREA"]] <- current.f("AREA", "BaseData_b.gdx", "LTYPEDEM", lookup_upd, "LDEM", c("PROD_SECT", "ENDWL_COMM", "REG"), c("PROD_SECT", "REG")) %>%
+MAGNET1_raw[["AREA"]] <- current.f("AREA", "BaseData_b.gdx", "LDEM", lookup_upd, "LDEM", c("PROD_SECT", "REG"), c("PROD_SECT", "REG")) %>%
   rename(TRAD_COMM = PROD_SECT) %>%
   mutate(value = value/10, # MAGNET AREA is in km2
          unit = "1000 ha")
@@ -193,9 +153,9 @@ MAGNET1_raw[["CONS"]] <- left_join(PROD, IMPO) %>%
          unit = "mil 2007 USD")
 rm(PROD, EXPO, IMPO)
 
-# Nutrients per sector
-MAGNET1_raw[["NQSECT"]] <- current.f("NQSECT", "fsbasecalories_2007-2010_update_view.gdx",  "NQSECT", lookup_upd_view, "NQSECT", c("NUTRIENTS", "PRIM_AGRI", "REG"), c("NUTRIENTS", "PRIM_AGRI","REG"))  %>%
-  rename(TRAD_COMM = PRIM_AGRI, unit = NUTRIENTS)
+# # Nutrients per sector
+# MAGNET1_raw[["NQSECT"]] <- current.f("NQSECT", "fsbasecalories_2007-2010_update_view.gdx",  "NQSECT", lookup_upd_view, "NQSECT", c("NUTRIENTS", "PRIM_AGRI", "REG"), c("NUTRIENTS", "PRIM_AGRI","REG"))  %>%
+#   rename(TRAD_COMM = PRIM_AGRI, unit = NUTRIENTS)
 
 # NB: in case of EXPO REGSOURCE is the exporter and REDDEST the importer.
 ### EXPO: export volume at market prices in volume
@@ -280,7 +240,7 @@ MAGNET1_raw[["VIMPval"]] <- current.f("priimpconsval", "BaseData_b.gdx", "VIPM",
 
 
 ### FOOD, FEED and OTHU
-source("Code\\FOODFEED.r")
+source(file.path(projectPath, "Code\\FOODFEED.r"))
 MAGNET1_raw[["FEED"]] <- FEED; rm(FEED)
 MAGNET1_raw[["FOOD"]] <- FOOD; rm(FOOD)
 MAGNET1_raw[["OTHU"]] <- OTHU; rm(OTHU)
@@ -301,9 +261,9 @@ MAGNET2_raw[["POPT"]] <- constant2.f("POPT", "BaseData_b.gdx", "POP", c("REG"), 
 # GDP value = GDPSRC(SREG,SUM) AND GDPSRC(SREG,SUM)  (NOT certified)
 MAGNET2_raw[["GDPval"]] <- current.f("GDPT", "BaseData_b_view.gdx", "GDPSRC", lookup_upd_view, "GDPSRC", c("REG", "GDPSOURCE"), c("REG")) %>%
   mutate(unit = "mil USD")
-
-MAGNET2_raw[["NQT"]] <- current.f("NQT", "fsbasecalories_2007-2010_update_view.gdx",  "NQT", lookup_upd_view, "NQT", c("NUTRIENTS", "REG"), c("NUTRIENTS", "REG")) %>%
-  rename(unit = NUTRIENTS)
+# 
+# MAGNET2_raw[["NQT"]] <- current.f("NQT", "fsbasecalories_2007-2010_update_view.gdx",  "NQT", lookup_upd_view, "NQT", c("NUTRIENTS", "REG"), c("NUTRIENTS", "REG")) %>%
+#   rename(unit = NUTRIENTS)
 
 
 
@@ -326,33 +286,25 @@ MAGNET2 <- bind_rows(MAGNET2_raw) %>%
 
 # Sectoral mappings
 MAGNET1 <- bind_rows(
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_cer),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_sec),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_sec_M),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_tot_M),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_agr),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_crp),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_primfood),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_anml),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_food),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_tot)
+  subtot_f(MAGNET1, c("scenario", "year", "sector", "REG", "variable", "unit"), "value", map_sec),
+  subtot_f(MAGNET1, c("scenario", "year", "sector", "REG", "variable", "unit"), "value", map_agr),
+  subtot_f(MAGNET1, c("scenario", "year", "sector", "REG", "variable", "unit"), "value", map_crp),
+  subtot_f(MAGNET1, c("scenario", "year", "sector", "REG", "variable", "unit"), "value", map_tot)
 )
 
 # Regional mappings
 MAGNET1 <-bind_rows(
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_fsreg),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_wld),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_af),
-  subtot_f(MAGNET1, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_hh)
-)
+  subtot_f(MAGNET1, c("scenario", "year", "sector", "region", "variable", "unit"), "value", map_reg),
+  subtot_f(MAGNET1, c("scenario", "year", "sector", "region", "variable", "unit"), "value", map_wld),
+  subtot_f(MAGNET1, c("scenario", "year", "sector", "region", "variable", "unit"), "value", map_con)
+  )
 
 MAGNET2 <-bind_rows(
-  subtot_f(MAGNET2, c("scenario", "year", "FSregion", "variable", "unit"), "value", map_fsreg),
-  subtot_f(MAGNET2, c("scenario", "year", "FSregion", "variable", "unit"), "value", map_wld),
-  subtot_f(MAGNET2, c("scenario", "year", "FSregion", "variable", "unit"), "value", map_af),
-  subtot_f(MAGNET2, c("scenario", "year", "FSregion", "variable", "unit"), "value", map_hh)
+  subtot_f(MAGNET2, c("scenario", "year", "region", "variable", "unit"), "value", map_reg),
+  subtot_f(MAGNET2, c("scenario", "year", "region", "variable", "unit"), "value", map_wld),
+  subtot_f(MAGNET2, c("scenario", "year", "region", "variable", "unit"), "value", map_con)
 ) %>%
-  mutate(FSsector = "TOT") # Add TOT for all national level indicators
+  mutate(sector = "TOT") # Add TOT for all national level indicators
 
 
 #################################
@@ -373,28 +325,27 @@ MAGNET3_raw <- list()
 PRODlsp <- constant.f("PROD", "VALOUTPUT", c("TRAD_COMM","REG", "GDPSOURCE"), c("TRAD_COMM", "REG"), "qo", c("NSAV_COMM", "REG")) %>%
             mutate(unit = "mil 2007 USD", 
                    REG = toupper(REG)) %>% 
-            filter(TRAD_COMM %in% c("ctl", "rmk"))
+            filter(TRAD_COMM %in% c("cattle", "milk"))
 
-PRODlsp <- subtot_f(PRODlsp, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_lsp)
+PRODlsp <- subtot_f(PRODlsp, c("scenario", "year", "sector", "REG", "variable", "unit"), "value", map_lsp)
 
 # Regional mappings
 PRODlsp <-bind_rows(
-  subtot_f(PRODlsp, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_fsreg),
-  subtot_f(PRODlsp, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_wld),
-  subtot_f(PRODlsp, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_af),
-  subtot_f(PRODlsp, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_hh)
+  subtot_f(PRODlsp, c("scenario", "year", "sector", "region", "variable", "unit"), "value", map_reg),
+  subtot_f(PRODlsp, c("scenario", "year", "sector", "region", "variable", "unit"), "value", map_wld),
+  subtot_f(PRODlsp, c("scenario", "year", "sector", "region", "variable", "unit"), "value", map_con)
 )
 
 MAGNET3_raw[["YILD"]] <- bind_rows(
-           filter(MAGNET1_2, variable %in% c("AREA") & 
-                  FSsector %in% c("AGR", "CER", "CRP", "DAIRY", "FOOD", "LSP", "MEAT", "OCEREALS",
-                                "OCROPS", "OILSEEDS", "PFB", "RICE", "RMEAT", "SUGAR",  "VFN", "WHT")),
+          filter(MAGNET1_2, variable %in% c("AREA") & 
+                  sector %in% c("AGR", "CRP", "LSP", "DRY", "OSD", "PFB", "RIC", "RUM", "SGC", "VFN", 
+                                  "WHT")),
           filter(MAGNET1_2, variable %in% c("PROD") & unit %in% c("mil USD") &
-                 FSsector %in% c("AGR", "CER", "CRP", "DAIRY", "FOOD", "MEAT", "OCEREALS",
-                                "OCROPS", "OILSEEDS", "PFB", "RICE", "RMEAT", "SUGAR",  "VFN", "WHT")),
+                 sector %in% c("AGR", "CRP", "DRY", "OSD", "PFB", "RIC", "RUM", "SGC", "VFN", 
+                                 "WHT")),
           PRODlsp) %>% # Only sectors with land
       select(-unit) %>%
-      group_by(scenario, FSregion, FSsector, year) %>%
+      group_by(scenario, region, sector, year) %>%
       summarize(value = value[variable == "PROD"]/value[variable == "AREA"]) %>%
       mutate(variable = "YILD",
       unit = "1000 USD/ha")
@@ -411,7 +362,7 @@ aland <- aland2.f("aland", "aland", c("PROD_SECT", "MREG")) %>%
   mutate(year = as.character(year))
  
 
-AREA <-current.f("AREA", "BaseData_b.gdx", "LTYPEDEM", lookup_upd, "LDEM", c("PROD_SECT", "ENDWL_COMM", "REG"), c("PROD_SECT", "REG")) %>%
+AREA <-current.f("AREA", "BaseData_b.gdx", "LDEM", lookup_upd, "LDEM", c("PROD_SECT", "REG"), c("PROD_SECT", "REG")) %>%
   rename(TRAD_COMM = PROD_SECT,
          AREA = value) %>% 
   select(-variable) %>%
@@ -426,28 +377,21 @@ YEXO_raw <- left_join(aland, AREA) %>%
 
 # Sectoral mappings
 YEXO_raw <- bind_rows(
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_cer),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_sec),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_agr),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_crp),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_food),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_sec_M),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_tot_M),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_primfood),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_anml),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_tot)
+  subtot_f(YEXO_raw, c("scenario", "year", "sector", "REG", "variable", "unit"), "value", map_sec),
+  subtot_f(YEXO_raw, c("scenario", "year", "sector", "REG", "variable", "unit"), "value", map_agr),
+  subtot_f(YEXO_raw, c("scenario", "year", "sector", "REG", "variable", "unit"), "value", map_crp),
+  subtot_f(YEXO_raw, c("scenario", "year", "sector", "REG", "variable", "unit"), "value", map_tot)
 )
 
 # Regional mappings
 YEXO_raw <-bind_rows(
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_fsreg),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_wld),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_af),
-  subtot_f(YEXO_raw, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_hh)
+  subtot_f(YEXO_raw, c("scenario", "year", "sector", "region", "variable", "unit"), "value", map_reg),
+  subtot_f(YEXO_raw, c("scenario", "year", "sector", "region", "variable", "unit"), "value", map_wld),
+  subtot_f(YEXO_raw, c("scenario", "year", "sector", "region", "variable", "unit"), "value", map_con)
   )
 
 MAGNET3_raw[["YEXO"]]  <- YEXO_raw %>% 
-                      group_by(scenario, year, FSsector, FSregion, unit) %>%
+                      group_by(scenario, year, sector, region, unit) %>%
                       summarize(value = value[variable == "aland_w"]/value[variable == "AREA"]) %>%
                       mutate(variable = "YEXO",
                       unit = "1000 USD/ha")
@@ -458,7 +402,7 @@ rm(YEXO_raw, AREA, aland)
 GDPdef <- MAGNET1_2 %>%
   filter(variable %in% c("GDPT")) %>%
   mutate(variable = ifelse(unit == "mil USD", "GDPval", variable)) %>%
-  select(-unit, -FSsector) %>%
+  select(-unit, -sector) %>%
   spread(variable, value) 
 
 # Paasche price index
@@ -484,63 +428,15 @@ MAGNET3_raw[["NETT"]] <- MAGNET1_2 %>%
   select(-EXPO, -IMPO)
   
 
-####################
-### AVAILABILITY ###
-####################
-
-AV <- list()
-
-# AV1
-### Per capita total amount of net calories available
-# Nutrients
-AV[["AV1"]] <- MAGNET1_2 %>%
-  filter(variable %in% c("NQT", "POPT") & unit %in% c("CAL", "mil pers")) %>%
-  group_by(scenario, FSregion, FSsector, year) %>%
-  summarize(value = value[variable == "NQT"]/value[variable == "POPT"]/365) %>%
-  mutate(unit = "kcal/cap/d",
-         variable = "CALO")
-
-
-# # AV2
-# # Net Share of energy supply (calories) derived from dairy and fruit and vegetables
-# # Nutrients
-AV[["AV2"]] <- MAGNET1_2 %>%
-  filter(variable %in% c("NQSECT") & unit %in% c("CAL") &  FSsector %in% c("TOT","CER")) %>%
-  group_by(scenario, FSregion, year) %>%
-  summarize(value = (value[FSsector == "CER"]/value[FSsector == "TOT"]*100)) %>%
-  mutate(FSsector = "CER",
-         unit = "%",
-         variable = "CALO")
-
-# AV3
-# Average supply of protein derived from animal sources
-AV[["AV3"]] <- MAGNET1_2 %>% 
-  filter(variable %in% c("POPT") | (variable %in% c("NQSECT") & unit %in% c("PROT") & FSsector %in% c("LSP"))) %>%
-  group_by(scenario, FSregion, year) %>%
-  summarize(value = (value[variable == "NQSECT"]/value[variable == "POPT"]/365)) %>%
-  mutate(FSsector = "LSP",
-         unit = "grams/cap/day",
-         variable = "PROT")
-
-# AV4 Primary food production: PROD
-AV[["AV4"]] <- MAGNET1_2 %>% 
-  filter((variable %in% c("PROD") & unit %in% c("mil 2007 USD") & FSsector %in% c("PRIMFOOD")) | variable %in% c("POPT")) %>%
-  group_by(scenario, FSregion, year) %>%
-  summarize(value = (value[variable == "PROD"]/value[variable == "POPT"]/365)) %>%
-  mutate(FSsector = "PRIMFOOD",
-         unit = "mil 2007 USD/cap",
-         variable = "PROD")
-
-# AV5
 ### XPRP Real producer price 
 GDPdef <- MAGNET1_2 %>%
   filter(variable %in% c("GDPT")) %>%
   mutate(variable = ifelse(unit == "mil USD", "GDPval", variable)) %>%
-  select(-unit, -FSsector) %>%
+  select(-unit, -sector) %>%
   spread(variable, value)  
 
 # Paasche price index
-XPRP_p <- MAGNET1_2 %>%
+MAGNET3_raw[["XPRP"]] <- MAGNET1_2 %>%
   filter(variable %in% c("PROD")) %>%
   mutate(variable = ifelse(unit == "mil USD", "PRODval", variable)) %>%
   select(-unit) %>%
@@ -552,235 +448,56 @@ XPRP_p <- MAGNET1_2 %>%
   select(-GDPT, -GDPval, -PROD, -PRODval)
 rm(GDPdef)        
 
-AV[["XPRP"]] <- XPRP_p  
 
-# AV6 NETT: Net trade
-# Already produced.
 
-# AV7 Not relevant for MAGNET
 
 ####################
-### ACCESIBILITY ###
+### AVAILABILITY ###
 ####################
 
-AC <- list()
 
-# AC1
-# Average share of food expenditures in total household expenditures
-VPA <- bind_rows(
-          current.f("VDPA", "BaseData_b.gdx", "VDPA", lookup_upd, "VDPA", c("TRAD_COMM", "REG"), c("TRAD_COMM","REG")) %>%
-            mutate(unit = "mil. USD"),
-          current.f("VIPA", "BaseData_b.gdx", "VIPA", lookup_upd, "VIPA", c("TRAD_COMM", "REG"), c("TRAD_COMM","REG")) %>%
-            mutate(unit = "mil. USD")) %>%
-       group_by(scenario, REG, year, TRAD_COMM) %>%
-       summarize(value = sum(value)) %>%
-       mutate(variable = "VPA",
-              unit = "mil. USD")
-
-VPA <- bind_rows(
-      subtot_f(VPA, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_food),
-      subtot_f(VPA, c("scenario", "year", "FSsector", "REG", "variable", "unit"), "value", map_tot)
-)
-
-VPA <- bind_rows(
-  subtot_f(VPA, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_fsreg),
-  subtot_f(VPA, c("scenario", "year", "FSsector", "FSregion", "variable", "unit"), "value", map_wld)
-)
-
-AC[["AC1"]] <- VPA %>%
-  group_by(scenario, FSregion, year) %>%
-  summarize(value = value[FSsector == "FOOD"]/value[FSsector == "TOT"]*100) %>%
-  mutate(FSsector = "TOT", 
-          variable = "SHRFc",
-          unit = "%")
-rm(VPA)
-
-# AC2
-### GDP per capita
-AC[["GDPC"]] <- MAGNET1_2 %>%
-          filter(variable %in% c("GDPT", "POPT") & unit %in% c("mil USD", "mil pers")) %>% 
-          select(-unit) %>%
-          group_by(scenario, FSregion, FSsector, year) %>%
-          summarize(value = value[variable == "GDPT"]/value[variable == "POPT"]) %>%
-          mutate(variable = "GDPC",
-                 unit = "mil 2007 USD/cap")
-
-# AC3
-### XFPI Domestic food price index
-GDPdef <- MAGNET1_2 %>%
-  filter(variable %in% c("GDPT")) %>%
-  mutate(variable = ifelse(unit == "mil USD", "GDPval", variable)) %>%
-  select(-unit, -FSsector) %>%
-  spread(variable, value) 
-
-# Paasche price index
-XFPI_p <- MAGNET1_2 %>%
-  filter(variable %in% c("PCONS")) %>%
-  mutate(variable = ifelse(unit == "mil USD", "PCONSval", variable)) %>%
-  select(-unit) %>%
-  spread(variable, value) %>%
-  left_join(., GDPdef) %>%
-  mutate(value = PCONSval/PCONS/GDPval*GDPT,
-         variable = "XFPI",
-         unit = "Paasche index") %>%
-  select(-GDPT, -GDPval, -PCONS, -PCONSval)
-rm(GDPdef)    
-
-# Laspeyers price index
-# NOT CORRECT CHANGE
-# XPRI_l <- MAGNET1_2 %>%
-#       filter(variable %in% c("PROD", "PRODval")) %>%
-#       select(-unit) %>%
-#       spread(variable, value) %>%
-#       left_join(., GDPdef) %>%
-#       group_by(scenario, FSsector, FSregion) %>%
-#       mutate(value = PRODval/PROD[year==2007]/GDPval*GDPT,
-#                variable = "XPRI",
-#                unit = "Laspeyeres index") %>%
-#       select(-GDPT, -GDPval, - PROD, - PRODval)
-
-# AC[["XPRI"]] <- bind_rows(XPRI_p, XPRI_l)  
-AC[["XFPI"]] <- XFPI_p  
-rm(XFPI_p)
-
-# AC4 XPRM Imported food price index
-GDPdef <- MAGNET1_2 %>%
-  filter(variable %in% c("GDPT")) %>%
-  mutate(variable = ifelse(unit == "mil USD", "GDPval", variable)) %>%
-  select(-unit, -FSsector) %>%
-  spread(variable, value) 
-
-# Private consumption of imported products volume
-priimpconsvol <- constant2.f("priimpconsvol", "BaseData_b.gdx", "VIPM", c("TRAD_COMM", "REG"), c("TRAD_COMM", "REG"), "qpm", c("TRAD_COMM", "REG"))
-# Private consumption of imported products value
-priimpconsval <- current.f("priimpconsval", "BaseData_b.gdx", "VIPM", lookup_upd, "VIPM", c("TRAD_COMM", "REG"), c("TRAD_COMM", "REG"))
-
-# Paasche price index
-AC[["XPRM"]] <-  MAGNET1_2 %>%
-  filter(variable %in% c("VIPM")) %>%
-  mutate(variable = ifelse(unit == "mil USD", "VIPMval", variable)) %>%
-  select(-unit) %>%
-  spread(variable, value) %>%
-  left_join(., GDPdef) %>%
-  mutate(value = VIPMval/VIPM/GDPval*GDPT,
-         value = ifelse(is.nan(value), NA, value), # for some combinations data is zero resulting in NAN
-         variable = "XFPI",
-         unit = "Paasche index") %>%
-  select(-GDPT, -GDPval, -VIPM, -VIPMval)
-rm(GDPdef)  
-
-# AC7 unskilled agricultural wage vs cereal prices
-#[TO ADD]
+# # AV1
+# ### Per capita total amount of net calories available
+# # Nutrients
+# AV1 <- MAGNET1_2 %>%
+#   filter(variable %in% c("NQT", "POPT") & unit %in% c("CAL", "mil pers")) %>%
+#   group_by(scenario, FSregion, FSsector, year) %>%
+#   summarize(value = value[variable == "NQT"]/value[variable == "POPT"]/365) %>%
+#   mutate(unit = "kcal/cap/d",
+#          variable = "CALO")
 
 
-### HOUSEHOLD LEVEL VARIABLES
-MAGNET_HH <- list()
 
-# AC6 HHCONS: Total private domestic consumption volume
-# Private consumption of domestic products volume at hh level
-VDPMH <- constant2.f("VDPMH", "BaseData_b.gdx", "VDPMH", c("TRAD_COMM", "HHS", "HH_REG"), c("TRAD_COMM", "HHS", "HH_REG"), "qpdh", c("TRAD_COMM", "HHS", "HH_REG"))
-# Private consumption of imported products volume at hh level
-VIPMH <- constant2.f("VIPMH", "BaseData_b.gdx", "VIPMH", c("TRAD_COMM", "HHS", "HH_REG"), c("TRAD_COMM", "HHS", "HH_REG"), "qpmh", c("TRAD_COMM", "HHS", "HH_REG"))
+#################
+### MERGE ALL ###
+#################
 
-CONSHH <- rbind(VDPMH, VIPMH) %>%
-  group_by(HH_REG, HHS, TRAD_COMM, scenario, year) %>%
-  summarize(value = sum(value)) %>%
-  rename(REG = HH_REG) %>%
-  ungroup() %>%
-  mutate(variable = "CONS",
-         unit = "mil 2007 USD",
-         REG = toupper(REG))
-
-CONSHH <- bind_rows(
-  subtot_f(CONSHH, c("scenario", "year", "FSsector", "REG", "variable", "unit", "HHS"), "value", map_cer),
-  subtot_f(CONSHH, c("scenario", "year", "FSsector", "REG", "variable", "unit", "HHS"), "value", map_sec),
-  subtot_f(CONSHH, c("scenario", "year", "FSsector", "REG", "variable", "unit", "HHS"), "value", map_agr),
-  subtot_f(CONSHH, c("scenario", "year", "FSsector", "REG", "variable", "unit", "HHS"), "value", map_crp),
-  subtot_f(CONSHH, c("scenario", "year", "FSsector", "REG", "variable", "unit", "HHS"), "value", map_food)
-)
-
-# POPT per HH group
-POPH <- constant2.f("POPH", "BaseData_b.gdx", "POPH", c("HHS", "HH_REG"), c("HHS", "HH_REG"), "poph", c("HHS", "HH_REG")) %>%
-  rename(REG = HH_REG,
-         POPT = value) %>%
-  mutate(REG = toupper(REG)) %>%
-  select(-variable)
-
-MAGNET_HH[["CONS"]] <- left_join(CONSHH, POPH) %>%
-  mutate(value = value/POPT,
-         value = ifelse(is.infinite(value), NA, value),
-         unit = "mil 2007 USD/cap",
-         variable = "CONS") %>%
-  select(-POPT)
-rm(CONSHH, POPH, VDPMH, VIPMH)
-
-
-### STABILITY
-ST <- list()
-
-# S1
-# # Cereal import dependency ratio
-ST[["IMDR"]] <- MAGNET1_2 %>%
- filter(variable %in% c("PROD", "EXPO", "IMPO") &  FSsector %in% c("CER") & unit == "mil 2007 USD") %>%
- group_by(scenario, FSregion, FSsector, year) %>%
- summarize(value = (value[variable == "IMPO"] - value[variable == "EXPO"])/
-                  (value[variable == "PROD"] + value[variable == "IMPO"] - value[variable == "EXPO"])*100) %>%
- mutate(variable = "IMDR",
-         unit = "%")
-
-
-# S2
-# Value of food imports over total exports
-ST[["SHRM"]] <- MAGNET1_2 %>% 
-  filter((variable %in% c("EXPO") & FSsector %in% c("TOT") & unit == "mil 2007 USD") |
-         (variable %in% c("IMPO") & FSsector %in% c("FOOD") & unit == "mil 2007 USD")) %>%
-  group_by(scenario, FSregion, year) %>%
-  summarize(value = (value[variable == "IMPO"]/ value[variable == "EXPO"])*100) %>%
-  mutate(variable = "SHRM",
-       unit = "%",
-       sector = "FOOD")
-
-
-### UTILIZATION
-U <- list()
-
-# U1
-#Energy density indicator
-# TBA
-
-# U2
-#CHECK DOES NOT WORK!!
-# Net Share of energy supply (calories) derived from vegetables and fruits
-U[["U1"]] <- MAGNET1_2 %>%
-  filter(variable %in% c("NQSECT") & unit %in% c("CAL") &  FSsector %in% c("TOT","VFN")) %>%
-  group_by(scenario, FSregion, year) %>%
-  summarize(value = (value[variable == "NQSECT"]/value[variable == "NQT"]*100)) %>%
-  mutate(FSsector = "VFN",
-         unit = "%",
-         variable = "CALO")
-
-### SUSTAINABILITY
-# Relevant for MAGNET?
-
-#####################################
-### MERGE ALL AND WRITE DATA FILE ###
-#####################################
-
-MAGNET_tot <- bind_rows(MAGNET1_2, MAGNET3_raw, AC, AV, U) %>%
+MAGNET_tot <- bind_rows(MAGNET1_2, MAGNET3_raw) %>%
                   mutate(model = "MAGNET",
-                  year = as.numeric(year),
-                  #scenario = revalue(scenario, c("ECO_qpc_t_st" = "ECO", "FFANF_qpc_t_st"  = "FFANF", "ONEPW_qpc_t_st" = "ONEPW",  "TLTL_qpc_t_st" = "TLTL")),
-                  #scenario = revalue(scenario, c("ECO_qpc_ti_st" = "ECO", "FFANF_qpc_ti_st"  = "FFANF", "ONEPW_qpc_ti_st" = "ONEPW",  "TLTL_qpc_ti_st" = "TLTL")),
-                  scenario = revalue(scenario, c("ECO_qpc_ti3_st" = "ECO", "FFANF_qpc_ti3_st"  = "FFANF", "ONEPW_qpc_ti3_st" = "ONEPW",  "TLTL_qpc_ti3_st" = "TLTL")),
-                  #Modelrun = "qpc_t_st"
-                  #Modelrun = "qpc_ti_st"
-                  Modelrun = "qpc_ti3_st"
-                  )
+                  year = as.numeric(year))
+
+
+
+###################
+### CORRECTIONS ###
+###################
+
+# Area in Canada for rice is zero, resulting in infinite values for YILD
+# Set to zero
+MAGNET_tot$value[is.infinite(MAGNET_tot$value)] <- 0
+
+# agCLIM50 uses - LYLD for	Livestock yield (endogenous) and LYXO for	Exogenous livestock yield trend 
+# We change the names
+MAGNET_tot$variable[MAGNET_tot$variable == "YILD" & MAGNET_tot$sector %in% c("LSP", "DRY", "OAP", "RUM")] <- "LYLD"
+MAGNET_tot$variable[MAGNET_tot$variable == "YEXO" & MAGNET_tot$sector %in% c("LSP", "DRY", "OAP", "RUM")] <- "LYXO"
+
+
+############
+### SAVE ###
+############
+#                  scenario = revalue(scenario, c("ECO_qpc_ti3_st" = "ECO", "FFANF_qpc_ti3_st"  = "FFANF", "ONEPW_qpc_ti3_st" = "ONEPW",  "TLTL_qpc_ti3_st" = "TLTL")))
 #FSMIPPath <- "D:\\Dropbox\\FOODSECURE Scenarios\\Results"
-FSMIPPath <- "Cache"
-#write.csv(MAGNET_tot, file.path(FSMIPPath, paste("MAGNET_FoodSecure_", Sys.Date(), ".csv", sep="")), row.names = F)
-#write.csv(MAGNET_tot, file.path(FSMIPPath, "MAGNET_qpc_t_st.csv"), row.names = F)
-#write.csv(MAGNET_tot, file.path(FSMIPPath, "MAGNET_qpc_ti_st.csv"), row.names = F)
-write.csv(MAGNET_tot, file.path(FSMIPPath, "MAGNET_qpc_ti3_st.csv"), row.names = F)
-xtabs(~FSsector+variable, data = MAGNET_tot)
+agCLIM50Path <- file.path(projectPath, "Cache")
+write_csv(MAGNET_tot, file.path(agCLIM50Path, paste("MAGNET_agCLIM50_", Sys.Date(), ".csv", sep="")))
+xtabs(~sector+variable, data = MAGNET_tot)
 
