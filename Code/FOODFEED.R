@@ -142,11 +142,11 @@ rm(Xbiog, Xddgs, XF2biog, Cbiog)
 
   
 # Mappings
-pf <- c("cmt", "omt", "vol", "mil", "pcr", "sugar", "ofd", "pfd")
-ser <- c("svcs")
-pa <- c("pdr", "wht",  "gro",  "hort","osd", "c_b",  "oagr", "crops", "fsh", "ctl", "oap", "rmk")
-ac <- c("pdr", "wht",  "gro",  "hort","osd", "c_b",  "oagr", "crops")
-lvs <- c("ctl",  "oap", "rmk", "fsh") # Add WOL IF AVAILABLE
+pf <- c("cmt", "omt", "vol", "dairy", "pcr", "sugar", "ofd") # ofd also includes beverages and tobacco and processed rice
+ser <- c("ser")
+pa <- c("pdr", "wht",  "grain",  "hort","oils", "sug",  "crops", "fsh", "cattle", "pigpoul", "milk")
+ac <- c("pdr", "wht",  "grain",  "hort","oils", "sug",  "crops")
+lvs <- c("cattle",  "milk", "pigpoul", "fsh") # Add WOL IF AVAILABLE
 
 # FOOD
 # P1
