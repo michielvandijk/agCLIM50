@@ -338,11 +338,11 @@ PRODlsp <-bind_rows(
 
 MAGNET3_raw[["YILD"]] <- bind_rows(
           filter(MAGNET1_2, variable %in% c("AREA") & 
-                  sector %in% c("AGR", "CRP", "LSP", "DRY", "OSD", "PFB", "RIC", "RUM", "SGC", "VFN", 
-                                  "WHT")),
+                  sector %in% c("AGR", "CGR", "CRP", "LSP", "DRY", "OSD", "PFB", "RIC", "RUM", "SGC", "VFN", 
+                                  "WHT", "TOT")),
           filter(MAGNET1_2, variable %in% c("PROD") & unit %in% c("mil USD") &
-                 sector %in% c("AGR", "CRP", "DRY", "OSD", "PFB", "RIC", "RUM", "SGC", "VFN", 
-                                 "WHT")),
+                 sector %in% c("AGR", "CGR", "CRP", "DRY", "OSD", "PFB", "RIC", "RUM", "SGC", "VFN", 
+                                 "WHT", "TOT")),
           PRODlsp) %>% # Only sectors with land
       select(-unit) %>%
       group_by(scenario, region, sector, year) %>%
@@ -373,7 +373,8 @@ YEXO_raw <- left_join(aland, AREA) %>%
         mutate(aland_w = aland*AREA) %>%
         select(-aland) %>%
         gather(variable, value, -scenario: -year) %>%
-        mutate(unit = "none")
+        mutate(unit = "none",
+               REG = toupper(REG))
 
 # Sectoral mappings
 YEXO_raw <- bind_rows(
@@ -390,7 +391,7 @@ YEXO_raw <-bind_rows(
   subtot_f(YEXO_raw, c("scenario", "year", "sector", "region", "variable", "unit"), "value", map_con)
   )
 
-MAGNET3_raw[["YEXO"]]  <- YEXO_raw %>% 
+MAGNET3_raw[["YEXO"]] <- YEXO_raw %>% 
                       group_by(scenario, year, sector, region, unit) %>%
                       summarize(value = value[variable == "aland_w"]/value[variable == "AREA"]) %>%
                       mutate(variable = "YEXO",
@@ -491,12 +492,19 @@ MAGNET_tot$value[is.infinite(MAGNET_tot$value)] <- 0
 MAGNET_tot$variable[MAGNET_tot$variable == "YILD" & MAGNET_tot$sector %in% c("LSP", "DRY", "OAP", "RUM")] <- "LYLD"
 MAGNET_tot$variable[MAGNET_tot$variable == "YEXO" & MAGNET_tot$sector %in% c("LSP", "DRY", "OAP", "RUM")] <- "LYXO"
 
+# Rename scenarios in line with agCLIM50
+scenMAGNET2agCLIM50 <- read_csv(file.path(projectPath, "Mappings/scenMAGNET2agCLIM50.csv")) %>%
+  rename(scenario = scenMAGNET)
+
+MAGNET_tot <- left_join(MAGNET_tot, scenMAGNET2agCLIM50) %>%
+  select(-scenario) %>%
+  rename(scenario = scenagCLIM50)
+
 
 ############
 ### SAVE ###
 ############
-#                  scenario = revalue(scenario, c("ECO_qpc_ti3_st" = "ECO", "FFANF_qpc_ti3_st"  = "FFANF", "ONEPW_qpc_ti3_st" = "ONEPW",  "TLTL_qpc_ti3_st" = "TLTL")))
-#FSMIPPath <- "D:\\Dropbox\\FOODSECURE Scenarios\\Results"
+
 agCLIM50Path <- file.path(projectPath, "Cache")
 write_csv(MAGNET_tot, file.path(agCLIM50Path, paste("MAGNET_agCLIM50_", Sys.Date(), ".csv", sep="")))
 xtabs(~sector+variable, data = MAGNET_tot)
