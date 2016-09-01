@@ -6,7 +6,7 @@
 # `````````````````````````````````````````````````````````````````````````````````````````````````` 
 
 # PACKAGES"
-BasePackages <- c("foreign", "stringr", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "readxl", "readr", "scales")
+BasePackages <- c("readr", "readxl", "foreign", "stringr", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "scales")
 lapply(BasePackages, library, character.only = TRUE)
 #SpatialPackages <- c("rgdal", "gdalUtils", "ggmap", "raster", "rasterVis", "rgeos", "sp", "mapproj", "maptools", "proj4")
 #lapply(SpatialPackages, library, character.only = TRUE)
@@ -14,12 +14,9 @@ AdditionalPackages <-  c("WDI", "countrycode")
 lapply(AdditionalPackages, library, character.only = TRUE)
 
 # SET PATHS
-wdPath<-"D:\\R\\FSWP7"
-#wdPath<-"D:\\2 Content\\Dropbox\\FOODSECURE Scenarios"
+wdPath<-"D:\\R\\agCLIM50"
 setwd(wdPath)
-dataPath <- "D:\\Shutes\\FOODSECURE\\R\\ProcessedModelResults"
-graphPath <- "D:\\Shutes\\FOODSECURE\\R\\Graphs"
-  
+
 # R SETTINGS
 options(scipen=99) # surpress scientific notation
 options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e.g. csv) is not turned into factors
@@ -38,28 +35,27 @@ ma <- function(x,n=5){stats::filter(x,rep(1/n,n), sides=2)}
 
 # Read MAGNET data per model and merge
 MAGNETruns <- list()
-MAGNETruns[["M_qpc_ti_st"]] <- read_csv("Cache/MAGNET_qpc_ti_st.csv")
-MAGNETruns[["M_qpc_t_st"]] <- read_csv("Cache/MAGNET_qpc_t_st.csv")
-MAGNETruns[["M_qpc_ti3_st"]] <- read_csv("Cache/MAGNET_qpc_ti3_st.csv")
+MAGNETruns[[1]] <- read_csv("Cache/MAGNET_agCLIM50_2016-08-31.csv")
 MAGNETruns <- bind_rows(MAGNETruns) %>%
+  mutate(modelrun = "2016-08-31") %>%
   na.omit
-xtabs(~Modelrun + variable, data = MAGNETruns)
+#xtabs(~Modelrun + variable, data = MAGNETruns)
 
 
 # Line plot to compare models
 lineplot_f <- function(df){
   
-  title = unique(with(df, paste(variable, FSsector, sep="_")))
+  title = unique(with(df, paste(variable, sector, sep="_")))
   point <- filter(df, year == 2050)
   
   p = ggplot() +
-    geom_line(data = df, aes(x = year, y = value, linetype = Modelrun, colour = scenario), size = 0.5) +
-    geom_point(data = point, aes(x = year, y = value, shape = Modelrun, colour = scenario)) +
-    scale_colour_manual(values = c("green","cyan","red","purple"), name="Scenario")+ 
-    scale_linetype_manual(values=c("solid","longdash", "dotted"), name = "Modelrun") +
-    scale_shape_manual(values=c(16,17,18), name = "Modelrun") +
+    geom_line(data = df, aes(x = year, y = value, colour = scenario), size = 0.5) +
+    geom_point(data = point, aes(x = year, y = value, colour = scenario, shape = scenario)) +
+    scale_colour_manual(values = c("green","cyan","red","purple", "brown", "grey"), name="Scenario")+ 
+    #scale_linetype_manual(values=c("solid","longdash", "dotted"), name = "Modelrun") +
+    scale_shape_manual(values=c(3, 4, 8, 15, 16, 17, 18), name = "Scenario") +
     ylab(unique(df$unit)) + xlab("") +
-    facet_wrap(~FSregion, scale = "free")
+    facet_wrap(~region, scale = "free")
   
   p = p +ggtitle(title) 
   
@@ -82,37 +78,25 @@ lineplot_f <- function(df){
 
 
 # Main regions
-mainRegions <- filter(MAGNETruns, FSregion %in% c("EASIA", "EU", "LAC", "MENA", "ROW", "SASIA", "SSA", "WLD"))
+mainRegions <- filter(MAGNETruns,region %in% c("NAM", "OAM", "AME", "SAS", "EUR", "FSU", "SSA", "WLD"))
 
 plot_i <- mainRegions %>%
-  group_by(variable, FSsector, unit) %>%
+  group_by(variable, sector, unit) %>%
   do(plots = lineplot_f(.)) 
 
-pdf(file = file.path(graphPath, "mrPlots.pdf"), width = 7, height = 7)
+pdf(file = "Graphs/agCLIM50MAGNET_MR.pdf", width = 10, height = 7)
 plot_i$plots
 dev.off()
 rm(plot_i)
 
-# Africa regions
-afRegions <- filter(MAGNETruns, FSregion %in% c("EAF", "NAF", "SAF", "WAF"))
-
-plot_i <- afRegions %>%
-  group_by(variable, FSsector, unit) %>%
+# Smaller regions
+smallRegions <- filter(MAGNETruns,region %in% c("CAN", "USA", "BRA", "OSA", "MEN", "CHN", "IND", "SEA", "OAS", "ANZ"))
+plot_i <- smallRegions %>%
+  group_by(variable, sector, unit) %>%
   do(plots = lineplot_f(.)) 
 
-pdf(file = file.path(graphPath, "afPlots.pdf"), width = 7, height = 7)
+pdf(file = "Graphs/agCLIM50MAGNET_SR.pdf", width = 10, height = 7)
 plot_i$plots
 dev.off()
 rm(plot_i)
 
-# Household regions
-hhRegions <- filter(MAGNETruns, FSregion %in% c("CHN", "GHA", "IDN", "IND", "KEN", "UGA")) 
-
-plot_i <- hhRegions %>%
-  group_by(variable, FSsector, unit) %>%
-  do(plots = lineplot_f(.)) 
-
-pdf(file = file.path(graphPath, "AllPlots.pdf"), width = 7, height = 7)
-plot_i$plots
-dev.off()
-rm(plot_i)

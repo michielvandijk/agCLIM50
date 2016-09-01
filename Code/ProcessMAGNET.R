@@ -5,7 +5,7 @@
 ### FUNCTIONS
 # Simple aggregation over sectors using mapping
 subtot_f <-function(df, grp, tvar, map){
-  FUN <- match.fun("sum")
+  FUN <- match.fun("sum, na.rm=TRUE") # na.rm ADDED
   df_subtot <- df %>%
     left_join(.,map) %>%
     na.omit %>% # Remove unmapped sectors
@@ -16,7 +16,7 @@ subtot_f <-function(df, grp, tvar, map){
 
 # Weighted aggregation
 wsubtot_f <-function(df, grp, tvar, weight, map){
-  FUN <- match.fun("sum")
+  FUN <- match.fun("sum, na.rm=TRUE")
   df %>%
     left_join(.,map) %>%
     na.omit %>% # Remove unmapped sectors
