@@ -1,19 +1,12 @@
-# PROJECT: FOODSECURE WP7
+# PROJECT: FOODSECURE agCLIM50
 # ``````````````````````````````````````````````````````````````````````````````````````````````````
 # ``````````````````````````````````````````````````````````````````````````````````````````````````
 # Merge resuls from different models
 # ``````````````````````````````````````````````````````````````````````````````````````````````````
 # `````````````````````````````````````````````````````````````````````````````````````````````````` 
 
-# QUESTIONS
-# FOOD PRICES? Definition of FOOD in GLOBIOM.
-# COMPARE YEXO across models!
-# NEED TO BE CLEAR ABOUT AGGREGATES: FOOD, AGR, ETC.
-# DIFFERENCE AREA AND LAND in IMAGE
-# Unit of LDEM in MAGNET -> higher than other models.
-
 # PACKAGES
-BasePackages <- c("foreign", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "openxlsx", "scales", "lazyeval", "ggthemes", "scales")
+BasePackages <- c("readr", "readxl", "foreign", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "dplyr", "ggplot2", "openxlsx", "scales", "lazyeval", "ggthemes", "scales")
 lapply(BasePackages, library, character.only = TRUE)
 #SpatialPackages <- c("rgdal", "gdalUtils", "ggmap", "raster", "rasterVis", "rgeos", "sp", "mapproj", "maptools", "proj4")
 #lapply(SpatialPackages, library, character.only = TRUE)
@@ -21,9 +14,10 @@ AdditionalPackages <-  c("WDI", "countrycode")
 lapply(AdditionalPackages, library, character.only = TRUE)
 
 # SET PATHS
-wdPath<-"D:\\Dropbox\\FOODSECURE Scenarios"
+wdPath <- "D:\\Data\\Projects\\agCLIM50"
 setwd(wdPath)
 
+dataPath <- "D:\\Dropbox\\AgClim50 scenario results"
 
 # R SETTINGS
 options(scipen=99) # surpress scientific notation
@@ -31,37 +25,45 @@ options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e
 options(digits=2)
 
 
-# CALO EMIS EXPO FEED FOOD FRTN GDPpc GDPval IMDR IMPO NETT  NQT OTHU XCPI XPRI XPRP 
+## COMPARE ALL
+# read data
+TOTAL <- read_csv(file.path(dataPath, "ModelResults\\TOTAL.csv"))
+xtabs(~ model + variable, data = TOTAL)
 
-# Compare all
-# # Line plot - index
-# TOTAL_lineplot_i <- TOTAL2 %>%
-#   group_by(variable, sector) %>%
-#   select(-value) %>%
-#   rename(value = index) %>%
-#   do(plots = lineplot_f(., "Index")) 
-# 
-# pdf(file = "./Results/Graphs/TOTAL.pdf", width = 7, height = 7)
-# TOTAL_lineplot_i$plots
-# dev.off()
+# create df with index observations for more than one model
+# NOT WORKING YET
+TOTALsel <- TOTAL %>%
+  group_by(year, scenario, region, item, variable) %>%
+  filter(length(model) == 2) 
 
+xtabs(~ model + variable, data = TOTALsel)
 
+# Line plot - index
+TOTAL_lineplot_i <- TOTAL %>%
+  group_by(variable, item) %>%
+  select(-value) %>%
+  rename(value = index) %>%
+  do(plots = lineplot_f(., "Index"))
+
+pdf(file = "./Results/Graphs/TOTAL.pdf", width = 7, height = 7)
+TOTAL_lineplot_i$plots
+dev.off()
 
 # Comparison GDP, POP and YEXO
-GDP_POP_YEXO <- TOTAL2 %>%
+GDP_POP_YEXO <- TOTAL %>%
   filter(variable %in% c("POPT", "GDPT", "YEXO"))
   
 xtabs(~ model + variable, data = GDP_POP_YEXO)
 
 # Line plot - index
 GDP_POP_YEXO_lineplot_i <- GDP_POP_YEXO %>%
-  group_by(variable, sector) %>%
+  group_by(variable, item) %>%
   select(-value) %>%
   rename(value = index) %>%
   do(plots = lineplot_f(., "Index")) 
 
-pdf(file = "./Graphs/GDP_POP_YEXO_i.pdf", width = 7, height = 7)
-GDP_POP_YEXO_lineplot_i$plots
+pdf(file = file.path(dataPath, "Graphs/GDP_POP_YEXO_i.pdf"), width = 12, height = 7)
+GDP_POP_YEXO_lineplot_i$plots[c(1:10)]
 dev.off()
 
 # Comparison of consumption
