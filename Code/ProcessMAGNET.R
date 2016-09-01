@@ -427,7 +427,7 @@ MAGNET3_raw[["NETT"]] <- MAGNET1_2 %>%
   spread(variable, value) %>%
   mutate(value = EXPO - IMPO,
          variable = "NETT",
-         unit = "mil 2007 con USD") %>%
+         unit = "mil 2007 USD") %>%
   select(-EXPO, -IMPO)
   
 
@@ -505,12 +505,14 @@ MAGNET_tot <- left_join(MAGNET_tot, scenMAGNET2agCLIM50) %>%
   select(-scenario) %>%
   rename(scenario = scenagCLIM50)
 
+# Remove values in current values
+
 
 ############
 ### SAVE ###
 ############
 
 agCLIM50Path <- file.path(projectPath, "Cache")
-write_csv(MAGNET_tot, file.path(agCLIM50Path, paste("MAGNET_agCLIM50_", Sys.Date(), ".csv", sep="")))
+write_csv(MAGNET_tot, file.path(agCLIM50Path, paste("agclim50_MAGNET_", Sys.Date(), ".csv", sep="")))
 xtabs(~item+variable, data = MAGNET_tot)
 
