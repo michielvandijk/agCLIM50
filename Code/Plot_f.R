@@ -1,8 +1,8 @@
 #########################################################################
-###### Functions to make plots  for FS model comparison #################
+###### Functions to make plots  for model comparison #################
 #########################################################################
 
-library(plyr)
+#library(plyr)
 library(scales)
 # 
 # df <- filter(IM_GL_db, sector == "GRSLND" & variable == "LAND") %>%
@@ -11,21 +11,20 @@ library(scales)
 # yas <- "index"              
 #             
 
-
 # Line plot to compare models
 lineplot_f <- function(df, yas){
   
-  title = unique(with(df, paste(variable, sector, sep="_")))
+  title = unique(with(df, paste(variable, item, sep="_")))
   point <- filter(df, year == 2050)
   
   p = ggplot() +
     geom_line(data = df, aes(x = year, y = value, linetype = model, colour = scenario), size = 0.5) +
     geom_point(data = point, aes(x = year, y = value, shape = model, colour = scenario)) +
-    scale_colour_manual(values = c("green","cyan","red","purple"), name="Scenario")+ 
+    #scale_colour_manual(values = c("green","cyan","red","purple"), name="Scenario")+ 
     scale_linetype_manual(values=c("solid","longdash", "dotted"), name = "Model") +
     scale_shape_manual(values=c(16,17,18), name = "Model") +
     ylab(yas) + xlab("") +
-    facet_wrap(~FSregion, scale = "free")
+    facet_wrap(~region, scale = "free")
   
   p = p +ggtitle(title) 
   

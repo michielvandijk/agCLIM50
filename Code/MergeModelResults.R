@@ -46,43 +46,44 @@ ma <- function(x,n=5){stats::filter(x,rep(1/n,n), sides=2)}
 
 # MAgPIE
 # Process
-MAgPIE <- read_csv(file.path(dataPath, "agclim50_MAgPIE.csv")) 
+MAgPIE <- read_csv(file.path(dataPath, "ModelResults\\agclim50_MAgPIE.csv")) %>%
+  rename(model = Model, scenario = Scenario, region = Region, item = Item, unit = Unit, variable = Variable, year = Year, value = Value)
 
 # Check
 summary(MAgPIE)
-xtabs(~Item + Variable, data = MAgPIE)
+xtabs(~item + variable, data = MAgPIE)
 
 # Some values are infinite => set to NA
-inf <- filter(MAgPIE, is.infinite(Value))
-MAgPIE$Value[is.infinite(MAgPIE$Value)] <- NA
+inf <- filter(MAgPIE, is.infinite(value))
+MAgPIE$value[is.infinite(MAgPIE$value)] <- NA
 
 # Rename several items that have wrong name
 # CHECK WITH MAgPIE about other names..
-MAgPIE$Item[MAgPIE$Item == "LVS"] <- "LSP"
-MAgPIE$Item[MAgPIE$Item == "SUG"] <- "SGC"
+MAgPIE$item[MAgPIE$item == "LVS"] <- "LSP"
+MAgPIE$item[MAgPIE$item == "SUG"] <- "SGC"
 
 # Check if there are variables with missing information for 2010
 # There are a few combination in MAgPIE that lack 2010 data
 check <- MAgPIE %>%
-  arrange(Model, Scenario, Region, Item, Variable, Year) %>%
-  group_by(Model, Scenario, Region, Item, Variable) %>%
-  filter(!any(Year==2010))
+  arrange(model, scenario, region, item, variable, year) %>%
+  group_by(model, scenario, region, item, variable) %>%
+  filter(!any(year==2010))
 
 # Remove series with missing values in 2010
 MAgPIE <- MAgPIE %>%
-  arrange(Model, Scenario, Region, Item, Variable, Year) %>%
-  group_by(Model, Scenario, Region, Item, Variable) %>%
-  filter(any(Year==2010)) 
-xtabs(~Item + Variable, data = MAgPIE)
+  arrange(model, scenario, region, item, variable, year) %>%
+  group_by(model, scenario, region, item, variable) %>%
+  filter(any(year==2010)) 
+xtabs(~item + variable, data = MAgPIE)
 
 
 # MAGNET
-MAGNET <- read_csv(file.path(dataPath, "MAGNET_agCLIM50_2016-08-31.csv")) %>%
-            rename(Year = year, Model = model, Scenario = scenario, Region = region, Item = sector, Variable = variable, Unit = unit, Value = value)
+MAGNET <- read_csv(file.path(dataPath, "ModelResults\\MAGNET_agCLIM50_2016-08-31.csv")) %>%
+            rename(item = sector)
 
 # Bind in one file
 TOTAL <- rbind(MAGNET, MAgPIE) %>% 
-              filter(Year>=2010)
+              filter(year>=2010)
 
 # Index (2010=100)
 # CHECK: GLOBIOM has various results for CALO with different units
@@ -91,12 +92,31 @@ TOTAL <- rbind(MAGNET, MAgPIE) %>%
 # CHECK HARMONISATION FOOD GROUPS IN TEMPLATE.
 
 TOTAL <- TOTAL %>%
-  arrange(Model, Scenario, Region, Item, Variable, Year) %>%
-  group_by(Model, Scenario, Region, Item, Variable, Unit) %>%
-  mutate(index = Value/Value[Year==2010]*100) %>%
-  arrange(Model, Scenario, Variable, Region, Item, Year)
+  arrange(model, scenario, region, item, variable, year) %>%
+  group_by(model, scenario, region, item, variable, unit) %>%
+  mutate(index = value/value[year==2010]*100) %>%
+  arrange(model, scenario, variable, region, item, year)
 
-xtabs(~Model + Variable, data = TOTAL2)
-xtabs(~Model + Item, data = TOTAL2)
-xtabs(~Model + Scenario, data = TOTAL2)
-write_csv(TOTAL, file.path(dataPath, "TOTAL.csv"))
+# Checks on missing values
+check <- TOTAL %>%
+  group_by(model, variable, item) %>%
+  summarize(
+            #n=n()
+            #miss = sum(is.na(Value)),
+            mean = mean(value, na.rm=TRUE)
+            ) %>%
+  spread(model, mean)
+
+
+# Remove NAN values for MAgPIE (GDPT = 0)
+inf.nan.na.clean_f<-function(x){
+  x[do.call(cbind, lapply(x, is.nan))]<-NA
+  x[do.call(cbind, lapply(x, is.infinite))]<-NA
+  return(x)
+}
+TOTAL <- inf.nan.na.clean_f(TOTAL)
+
+xtabs(~model + variable, data = TOTAL)
+xtabs(~model + item, data = TOTAL)
+xtabs(~model + scenario, data = TOTAL)
+write_csv(TOTAL, file.path(dataPath, "ModelResults\\TOTAL.csv"))
