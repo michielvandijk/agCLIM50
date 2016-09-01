@@ -2,10 +2,12 @@
 ##### PROCESS MAGNET VARIABLES             ############
 #######################################################
 
+source("D:\\R\\agCLIM50\\Code\\Load_MAGNET.r")
+
 ### FUNCTIONS
 # Simple aggregation over sectors using mapping
 subtot_f <-function(df, grp, tvar, map){
-  FUN <- match.fun("sum, na.rm=TRUE") # na.rm ADDED
+  FUN <- match.fun("sum") # na.rm MISSING?
   df_subtot <- df %>%
     left_join(.,map) %>%
     na.omit %>% # Remove unmapped sectors
@@ -16,7 +18,7 @@ subtot_f <-function(df, grp, tvar, map){
 
 # Weighted aggregation
 wsubtot_f <-function(df, grp, tvar, weight, map){
-  FUN <- match.fun("sum, na.rm=TRUE")
+  FUN <- match.fun("sum")
   df %>%
     left_join(.,map) %>%
     na.omit %>% # Remove unmapped sectors
@@ -256,7 +258,7 @@ MAGNET2_raw[["GDPT"]] <-  constant2.f("GDPT","BaseData_b_view.gdx", "GDPSRC", c(
        
 # POP total population
 MAGNET2_raw[["POPT"]] <- constant2.f("POPT", "BaseData_b.gdx", "POP", c("REG"), c("REG"), "pop", c("REG")) %>%
-  mutate(unit = "mil pers")
+  mutate(unit = "million")
 
 # GDP value = GDPSRC(SREG,SUM) AND GDPSRC(SREG,SUM)  (NOT certified)
 MAGNET2_raw[["GDPval"]] <- current.f("GDPT", "BaseData_b_view.gdx", "GDPSRC", lookup_upd_view, "GDPSRC", c("REG", "GDPSOURCE"), c("REG")) %>%
@@ -444,7 +446,7 @@ MAGNET3_raw[["XPRP"]] <- MAGNET1_2 %>%
   spread(variable, value) %>%
   left_join(., GDPdef) %>%
   mutate(value = PRODval/PROD/GDPval*GDPT,
-         variable = "XPRI",
+         variable = "XPRP",
          unit = "Paasche index") %>%
   select(-GDPT, -GDPval, -PROD, -PRODval)
 rm(GDPdef)        
@@ -492,6 +494,9 @@ MAGNET_tot$value[is.infinite(MAGNET_tot$value)] <- 0
 MAGNET_tot$variable[MAGNET_tot$variable == "YILD" & MAGNET_tot$sector %in% c("LSP", "DRY", "OAP", "RUM")] <- "LYLD"
 MAGNET_tot$variable[MAGNET_tot$variable == "YEXO" & MAGNET_tot$sector %in% c("LSP", "DRY", "OAP", "RUM")] <- "LYXO"
 
+# Change sector into item
+MAGNET_tot <- rename(MAGNET_tot, item = sector)
+
 # Rename scenarios in line with agCLIM50
 scenMAGNET2agCLIM50 <- read_csv(file.path(projectPath, "Mappings/scenMAGNET2agCLIM50.csv")) %>%
   rename(scenario = scenMAGNET)
@@ -507,5 +512,5 @@ MAGNET_tot <- left_join(MAGNET_tot, scenMAGNET2agCLIM50) %>%
 
 agCLIM50Path <- file.path(projectPath, "Cache")
 write_csv(MAGNET_tot, file.path(agCLIM50Path, paste("MAGNET_agCLIM50_", Sys.Date(), ".csv", sep="")))
-xtabs(~sector+variable, data = MAGNET_tot)
+xtabs(~item+variable, data = MAGNET_tot)
 
