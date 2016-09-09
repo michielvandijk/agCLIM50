@@ -2,36 +2,7 @@
 ##### LOAD AND CREATE VARIABLES             ###########
 #######################################################
 
-# PACKAGES
-BasePackages <- c("readr", "lazyeval", "foreign", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "haven")
-lapply(BasePackages, library, character.only = TRUE)
-AdditionalPackages <- c("gdxrrw", "micEcon")
-lapply(AdditionalPackages, library, character.only = TRUE)
-
-# load required GAMS libraries (folder user specific)
-GAMSPath <- "C:\\24.4"
-#GAMSPath <- "C:\\Program Files\\GAMS\\win64\\24.6"
-igdx(GAMSPath)
-# Make sure GDX2HAR.exe and gdxiomh.dll are located in one folder.
-
-# Set working folder
-wdPath <- "D:\\Jason\\MAGNET_PBL_SSP_PPP_NUTcor2noCCcor"
-setwd(wdPath)  
-
-# Set data result path
-dataResultPath <- "./4_MAGNET/Results"
-
-# Source functions
 source("D:\\R\\agCLIM50\\Code\\Load_Magnet_f.r")
-
-# R SETTINGS
-options(scipen=999) # surpress scientific notation
-options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e.g. csv) is not turned into factors
-options(digits=4)
-
-# Define scenarios, periods, path, project, sourcefile and 
-scenarios<-c("SSP1a_FLC3_M", "SSP2a_FLC3", "SSP3a_FLC3_M", "SSP1a_FLC3_M_clim6", "SSP2a_FLC3_clim6", "SSP3a_FLC3_M_clim6")
-periods<-c("2007-2010", "2010-2020", "2020-2030", "2030-2050")
 
 # create lookup table for update files
 sourcefile<-c("update")
