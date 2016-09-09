@@ -506,6 +506,8 @@ MAGNET_tot <- left_join(MAGNET_tot, scenMAGNET2agCLIM50) %>%
   rename(scenario = scenagCLIM50)
 
 # Remove values in current values
+xtabs(~variable + unit, data = MAGNET_tot)
+MAGNET_tot <- filter(MAGNET_tot, unit != "mil USD")
 
 
 ############
