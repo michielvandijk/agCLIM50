@@ -78,8 +78,7 @@ xtabs(~item + variable, data = MAgPIE)
 
 
 # MAGNET
-MAGNET <- read_csv(file.path(dataPath, "ModelResults\\MAGNET_agCLIM50_2016-08-31.csv")) %>%
-            rename(item = sector)
+MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-09-01.csv")) 
 
 # Bind in one file
 TOTAL <- rbind(MAGNET, MAgPIE) %>% 
@@ -114,7 +113,8 @@ inf.nan.na.clean_f<-function(x){
   x[do.call(cbind, lapply(x, is.infinite))]<-NA
   return(x)
 }
-TOTAL <- inf.nan.na.clean_f(TOTAL)
+TOTAL <- inf.nan.na.clean_f(TOTAL) %>% 
+  filter(!is.na(index))
 
 xtabs(~model + variable, data = TOTAL)
 xtabs(~model + item, data = TOTAL)

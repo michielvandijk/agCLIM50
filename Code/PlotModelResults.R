@@ -19,6 +19,9 @@ setwd(wdPath)
 
 dataPath <- "D:\\Dropbox\\AgClim50 scenario results"
 
+# SOURCE PLOT FUNCTION
+source("Code/plot_f.r")
+
 # R SETTINGS
 options(scipen=99) # surpress scientific notation
 options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e.g. csv) is not turned into factors
@@ -26,17 +29,17 @@ options(digits=2)
 
 
 ## COMPARE ALL
-# read data
+read data
 TOTAL <- read_csv(file.path(dataPath, "ModelResults\\TOTAL.csv"))
 xtabs(~ model + variable, data = TOTAL)
 
 # create df with index observations for more than one model
 # NOT WORKING YET
-TOTALsel <- TOTAL %>%
-  group_by(year, scenario, region, item, variable) %>%
-  filter(length(model) == 2) 
-
-xtabs(~ model + variable, data = TOTALsel)
+# TOTALsel <- TOTAL %>%
+#   group_by(year, scenario, region, item, variable) %>%
+#   filter(length(model) == 2)
+# 
+# xtabs(~ model + variable, data = TOTALsel)
 
 # Line plot - index
 TOTAL_lineplot_i <- TOTAL %>%
@@ -45,7 +48,7 @@ TOTAL_lineplot_i <- TOTAL %>%
   rename(value = index) %>%
   do(plots = lineplot_f(., "Index"))
 
-pdf(file = "./Results/Graphs/TOTAL.pdf", width = 7, height = 7)
+pdf(file = file.path(dataPath, "Graphs/TOTAL.pdf"), width = 12, height = 7)
 TOTAL_lineplot_i$plots
 dev.off()
 
@@ -63,7 +66,7 @@ GDP_POP_YEXO_lineplot_i <- GDP_POP_YEXO %>%
   do(plots = lineplot_f(., "Index")) 
 
 pdf(file = file.path(dataPath, "Graphs/GDP_POP_YEXO_i.pdf"), width = 12, height = 7)
-GDP_POP_YEXO_lineplot_i$plots[c(1:10)]
+GDP_POP_YEXO_lineplot_i$plots
 dev.off()
 
 # Comparison of consumption
@@ -78,34 +81,22 @@ CONS_lineplot_i <- CONS %>%
   rename(value = index) %>%
   do(plots = lineplot_f(., "Index")) 
 
-pdf(file = "./Graphs/CONS_lineplot_i.pdf", width = 7, height = 7)
+pdf(file = "./Graphs/CONS_lineplot_i.pdf", width = 12, height = 7)
 CONS_lineplot_i$plots
 dev.off()
 
 # Comparison AREA and LAND
-LAND_AREA <- TOTAL2 %>%
+LAND_AREA <- TOTAL %>%
   filter(variable %in% c("AREA", "LAND")) 
-
-
-inf.nan.na.clean_f<-function(x){
-  x[do.call(cbind, lapply(x, is.nan))]<-NA
-  x[do.call(cbind, lapply(x, is.infinite))]<-NA
-  x<-x[complete.cases(x),]
-  return(x)
-}
-
-# IMAGE has zero values for LAND/AREA for a number of sector-region combinations
-LAND_AREA <- inf.nan.na.clean_f(LAND_AREA)
-xtabs(~model + sector, data = LAND_AREA)
 
 # Line plot - index
 LAND_AREA_lineplot_i <- LAND_AREA %>%
-  group_by(variable, sector) %>%
+  group_by(variable, item) %>%
   select(-value) %>%
   rename(value = index) %>%
   do(plots = lineplot_f(., "Index")) 
 
-pdf(file = "./Graphs/LAND_AREA_line_i.pdf", width = 7, height = 7)
+pdf(file = file.path(dataPath, "Graphs/LAND_AREA_line_i.pdf"), width = 12, height = 7)
 LAND_AREA_lineplot_i$plots
 dev.off()
 
