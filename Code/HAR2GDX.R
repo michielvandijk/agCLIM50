@@ -10,7 +10,7 @@
 #             - Adding user defined region concordance to make user defined aggregations
 
 # PACKAGES
-BasePackages <- c("readr", "readxl", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "haven")
+BasePackages <- c("readr", "readxl", "stringr", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "haven")
 lapply(BasePackages, library, character.only = TRUE)
 AdditionalPackages <- c("gdxrrw")
 lapply(AdditionalPackages, library, character.only = TRUE)
@@ -30,6 +30,7 @@ setwd(wdPath)
 har2gdx.f<-function(har.file, gdx.file=""){
   system(paste("HAR2GDX.exe", har.file, gdx.file, sep=" "))
 }
+
 # R SETTINGS
 options(scipen=999) # surpress scientific notation
 options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e.g. csv) is not turned into factors
@@ -48,7 +49,10 @@ dataResultPath <- "./4_MAGNET/Results"
 if (!file.exists(dataResultPath)) dir.create(dataResultPath) 
 
 # Define scenarios, periods and project
-scenarios<-c("SSP1a_FLC3_M", "SSP2a_FLC3", "SSP3a_FLC3_M", "SSP1a_FLC3_M_clim6", "SSP2a_FLC3_clim6", "SSP3a_FLC3_M_clim6")
+scenarios<-c("SSP1a_FLC3_M", "SSP2a_FLC3", "SSP3a_FLC3_M", 
+             "SSP1a_FLC3_M_clim6", "SSP2a_FLC3_clim6", "SSP3a_FLC3_M_clim6", 
+             "SSP1a_FLC3_M_clim26_nEnP", "SSP2a_FLC3_clim26_nEnP", "SSP3a_FLC3_M_clim26_nEnP",
+             "SSP1a_FLC3_M_clim26_nEnP_noCC", "SSP2a_FLC3_clim26_nEnP_noCC", "SSP3a_FLC3_M_clim26_nEnP_noCC")
 periods<-c("2007-2010", "2010-2020", "2020-2030", "2030-2050")
 
 # Create lookup table for update files
