@@ -2,6 +2,15 @@
 ##### PROCESS MAGNET VARIABLES             ############
 #######################################################
 
+#' NOTE
+#' This code harvests all the data from the GDX files that are created with the script HAR2GDX.R. 
+#' HAR2GDX.R only has to be run when new there are new model runs to generate the GDX files.
+#' If the names of the scenarios do not change, just run the code by selecting all code (ctrl+A) and run (shft + enter).
+#' The few lines in red are not a problem. In some cames the indicate overlap in packages and others are just a message
+#' that tables are joined. It can take 5-10 minute before the run is finished. 
+#' A file with all the MAGNET data will be saved in: D:\R\agCLIM50\Cache with the data in the filename.
+
+
 ### PACKAGES
 BasePackages <- c("readr", "lazyeval", "foreign", "stringr", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "haven")
 lapply(BasePackages, library, character.only = TRUE)

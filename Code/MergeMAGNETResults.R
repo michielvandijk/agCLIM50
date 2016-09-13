@@ -35,9 +35,9 @@ ma <- function(x,n=5){stats::filter(x,rep(1/n,n), sides=2)}
 
 # Read MAGNET data per model and merge
 MAGNETruns <- list()
-MAGNETruns[[1]] <- read_csv("Cache/MAGNET_agCLIM50_2016-08-31.csv")
+MAGNETruns[[1]] <- read_csv("Cache/agclim50_MAGNET_2016-09-13.csv")
 MAGNETruns <- bind_rows(MAGNETruns) %>%
-  mutate(modelrun = "2016-08-31") %>%
+  mutate(modelrun = "2016-09-13") %>%
   na.omit
 #xtabs(~Modelrun + variable, data = MAGNETruns)
 
@@ -45,15 +45,15 @@ MAGNETruns <- bind_rows(MAGNETruns) %>%
 # Line plot to compare models
 lineplot_f <- function(df){
   
-  title = unique(with(df, paste(variable, sector, sep="_")))
+  title = unique(with(df, paste(variable, item, sep="_")))
   point <- filter(df, year == 2050)
   
   p = ggplot() +
     geom_line(data = df, aes(x = year, y = value, colour = scenario), size = 0.5) +
     geom_point(data = point, aes(x = year, y = value, colour = scenario, shape = scenario)) +
-    scale_colour_manual(values = c("green","cyan","red","purple", "brown", "grey"), name="Scenario")+ 
+    #scale_colour_manual(values = c("green","cyan","red","purple", "brown", "grey"), name="Scenario")+ 
     #scale_linetype_manual(values=c("solid","longdash", "dotted"), name = "Modelrun") +
-    scale_shape_manual(values=c(3, 4, 8, 15, 16, 17, 18), name = "Scenario") +
+    scale_shape_manual(values=seq(0,15), name = "Scenario") +
     ylab(unique(df$unit)) + xlab("") +
     facet_wrap(~region, scale = "free")
   
@@ -81,7 +81,7 @@ lineplot_f <- function(df){
 mainRegions <- filter(MAGNETruns,region %in% c("NAM", "OAM", "AME", "SAS", "EUR", "FSU", "SSA", "WLD"))
 
 plot_i <- mainRegions %>%
-  group_by(variable, sector, unit) %>%
+  group_by(variable, item, unit) %>%
   do(plots = lineplot_f(.)) 
 
 pdf(file = "Graphs/agCLIM50MAGNET_MR.pdf", width = 10, height = 7)
