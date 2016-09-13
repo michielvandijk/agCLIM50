@@ -53,7 +53,7 @@ lineplot_f <- function(df){
     geom_point(data = point, aes(x = year, y = value, colour = scenario, shape = scenario)) +
     #scale_colour_manual(values = c("green","cyan","red","purple", "brown", "grey"), name="Scenario")+ 
     #scale_linetype_manual(values=c("solid","longdash", "dotted"), name = "Modelrun") +
-    scale_shape_manual(values=seq(0,15), name = "Scenario") +
+    scale_shape_manual(values=seq(0,15), name = "scenario") +
     ylab(unique(df$unit)) + xlab("") +
     facet_wrap(~region, scale = "free")
   
@@ -66,7 +66,7 @@ lineplot_f <- function(df){
     theme(panel.border = element_blank(),
           axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
           axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black")) +
-    scale_x_continuous(limits = c(2010,2050.1), breaks = seq(2010,2050,by=10),expand=c(0,0)) + # note that: Limits sets the limits for the axes (added 0.1) but always some space is added. Latter is controlled by expand
+    scale_x_continuous(limits = c(2010,2051), breaks = seq(2010,2050,by=10),expand=c(0,0)) + # note that: Limits sets the limits for the axes (added 0.1) but always some space is added. Latter is controlled by expand
     scale_y_continuous(labels = comma) +
     theme(legend.background=element_blank()) +
     theme(legend.key=element_rect(size=0.5, color="white"), # Increase space between legend boxes - doubt if it works
@@ -92,7 +92,7 @@ rm(plot_i)
 # Smaller regions
 smallRegions <- filter(MAGNETruns,region %in% c("CAN", "USA", "BRA", "OSA", "MEN", "CHN", "IND", "SEA", "OAS", "ANZ"))
 plot_i <- smallRegions %>%
-  group_by(variable, sector, unit) %>%
+  group_by(variable, item, unit) %>%
   do(plots = lineplot_f(.)) 
 
 pdf(file = "Graphs/agCLIM50MAGNET_SR.pdf", width = 10, height = 7)
