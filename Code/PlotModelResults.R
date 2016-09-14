@@ -1,7 +1,7 @@
 # PROJECT: FOODSECURE agCLIM50
 # ``````````````````````````````````````````````````````````````````````````````````````````````````
 # ``````````````````````````````````````````````````````````````````````````````````````````````````
-# Merge resuls from different models
+# Plot resuls from different models
 # ``````````````````````````````````````````````````````````````````````````````````````````````````
 # `````````````````````````````````````````````````````````````````````````````````````````````````` 
 
@@ -27,11 +27,9 @@ options(scipen=99) # surpress scientific notation
 options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e.g. csv) is not turned into factors
 options(digits=2)
 
-
 ## COMPARE ALL
-read data
-TOTAL <- read_csv(file.path(dataPath, "ModelResults\\TOTAL.csv"))
-xtabs(~ model + variable, data = TOTAL)
+# read data
+xtabs(~ variable + model, data = TOTAL)
 
 # create df with index observations for more than one model
 # NOT WORKING YET
@@ -56,7 +54,7 @@ dev.off()
 GDP_POP_YEXO <- TOTAL %>%
   filter(variable %in% c("POPT", "GDPT", "YEXO"))
   
-xtabs(~ model + variable, data = GDP_POP_YEXO)
+xtabs(~ variable + model, data = GDP_POP_YEXO)
 
 # Line plot - index
 GDP_POP_YEXO_lineplot_i <- GDP_POP_YEXO %>%
@@ -68,6 +66,70 @@ GDP_POP_YEXO_lineplot_i <- GDP_POP_YEXO %>%
 pdf(file = file.path(dataPath, "Graphs/GDP_POP_YEXO_i.pdf"), width = 12, height = 7)
 GDP_POP_YEXO_lineplot_i$plots
 dev.off()
+
+# BAR GRAPHS for WLD
+barplot_f <- function(df, var, itm){
+  df <- filter(df, variable == var, item == itm)
+  title <- paste(var, itm, sep = "_")
+  p = ggplot(data = df, aes(x = scenario, y = index, fill = scenario)) +
+    geom_bar(stat="identity", colour = "black") + 
+    facet_wrap(~model) +
+    ggtitle(title) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    ylab("Index (2010=1)")
+  p
+}
+
+TOTAL_WLD <- filter(TOTAL, region == "WLD", year == 2050)
+xtabs(~variable + unit, data = TOTAL_WLD)
+
+pdf(file = file.path(dataPath, "Graphs/Sevilla.pdf"), width = 12, height = 7)
+
+barplot_f(TOTAL_WLD, "XPRP", "AGR")
+barplot_f(TOTAL_WLD, "XPRP", "CRP")
+barplot_f(TOTAL_WLD, "XPRP", "LSP")
+
+barplot_f(TOTAL_WLD, "PROD", "AGR")
+barplot_f(TOTAL_WLD, "PROD", "CRP")
+barplot_f(TOTAL_WLD, "PROD", "LSP")
+
+barplot_f(TOTAL_WLD, "LAND", "AGR")
+barplot_f(TOTAL_WLD, "LAND", "CRP")
+barplot_f(TOTAL_WLD, "LAND", "GRS")
+
+barplot_f(TOTAL_WLD, "AREA", "AGR")
+barplot_f(TOTAL_WLD, "AREA", "CRP")
+barplot_f(TOTAL_WLD, "AREA", "LSP")
+
+barplot_f(TOTAL_WLD, "YILD", "GRS")
+barplot_f(TOTAL_WLD, "YILD", "CRP")
+
+barplot_f(TOTAL_WLD, "YEXO", "CRP")
+#barplot_f(TOTAL_WLD, "YEXO", "GRS")
+
+barplot_f(TOTAL_WLD, "NETT", "AGR")
+barplot_f(TOTAL_WLD, "NETT", "CRP")
+barplot_f(TOTAL_WLD, "NETT", "LSP")
+
+barplot_f(TOTAL_WLD, "CONS", "AGR")
+barplot_f(TOTAL_WLD, "CONS", "CRP")
+barplot_f(TOTAL_WLD, "CONS", "LSP")
+
+barplot_f(TOTAL_WLD, "EMIS", "TOT")
+barplot_f(TOTAL_WLD, "EMIS", "AGR")
+barplot_f(TOTAL_WLD, "EMIS", "CRP")
+barplot_f(TOTAL_WLD, "EMIS", "LSP")
+
+barplot_f(TOTAL_WLD, "GDPT", "TOT")
+barplot_f(TOTAL_WLD, "POPT", "TOT")
+dev.off()
+
+
+
+xtabs(~variable + unit, data = MAgPIE)
+# bar graph - index
+
+df <- filter(TOTAL_WLD, variable == "XPRP", item == "CRP")
 
 # Comparison of consumption
 CONS <- TOTAL2 %>% 

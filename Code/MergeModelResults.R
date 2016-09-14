@@ -64,48 +64,114 @@ MAgPIE$item[MAgPIE$item == "SUG"] <- "SGC"
 
 # Check if there are variables with missing information for 2010
 # There are a few combination in MAgPIE that lack 2010 data
-check <- MAgPIE %>%
+check2010 <- MAgPIE %>%
   arrange(model, scenario, region, item, variable, year) %>%
   group_by(model, scenario, region, item, variable) %>%
   filter(!any(year==2010))
 
 # Remove series with missing values in 2010
 MAgPIE <- MAgPIE %>%
-  arrange(model, scenario, region, item, variable, year) %>%
-  group_by(model, scenario, region, item, variable) %>%
+  arrange(model, scenario, region, item, variable, unit, year) %>%
+  group_by(model, scenario, region, item, unit, variable) %>%
   filter(any(year==2010)) 
 xtabs(~item + variable, data = MAgPIE)
 
+# MAgPIE has duplicate unit for PROD. I use 1000 t and remove 1000 t prt
+MAgPIE <- filter(MAgPIE, !(unit %in% c("1000 t prt")))
+xtabs(~variable + unit, data = MAgPIE)
+
+# GLOBIOM
+# Process
+GLOBIOM <- read_csv(file.path(dataPath, "ModelResults\\agclim50_GLOBIOM_20160907.csv")) %>%
+  rename(model = Model, scenario = Scenario, region = Region, item = Item, unit = Unit, variable = Variable, year = Year, value = Value) %>%
+  mutate(variable = toupper(variable))
+
+# Check
+summary(GLOBIOM)
+xtabs(~item + variable, data = GLOBIOM)
+xtabs(~variable + unit, data = GLOBIOM)
+
+# GLOBIOM has duplicate units for some variable. I exclude 1000 dm t and dm t/ha
+GLOBIOM <- filter(GLOBIOM, !(unit %in% c("1000 dm t", "dm t/ha")))
+
+# Check if there are variables with missing information for 2010
+check2010 <- GLOBIOM %>%
+  arrange(model, scenario, region, item, variable, unit, year) %>%
+  group_by(model, scenario, region, item, variable, unit) %>%
+  filter(!any(year==2010))
+
+# Remove series with missing values in 2010
+GLOBIOM <- GLOBIOM %>%
+  arrange(model, scenario, region, item, variable, unit, year) %>%
+  group_by(model, scenario, region, item, unit, variable) %>%
+  filter(any(year==2010)) 
+xtabs(~item + variable, data = GLOBIOM)
+
+# IMAGE
+# Process
+IMAGE <- read_csv(file.path(dataPath, "ModelResults\\agclim50_IMAGE_2016-09-13.csv")) %>%
+  rename(model = Model, scenario = Scenario, region = Region, item = Item, unit = Unit, variable = Variable, year = Year, value = Value) %>%
+  mutate(year = as.numeric(year))
+
+# Check
+summary(IMAGE)
+xtabs(~item + variable, data = IMAGE)
+
+# Check if there are variables with missing information for 2010
+check2010 <- IMAGE %>%
+  arrange(model, scenario, region, item, variable, unit, year) %>%
+  group_by(model, scenario, region, item, variable, unit) %>%
+  filter(!any(year==2010))
 
 # MAGNET
-MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-09-01.csv")) 
+MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-09-13.csv")) 
+xtabs(~item + scenario, data = MAGNET)
+
+# CAPRI
+CAPRI <- read_csv(file.path(dataPath, "ModelResults\\AGCLIM50_CAPRI_v1.csv")) %>%
+  setNames(c("region", "variable", "item", "year", "scenario", "value")) %>%
+  mutate(model = "CAPRI",
+         unit = NA)
+
+# CAPRI is missing base data values. It has BASELINE values. I assume this is the base for each scenario
+oldBase <- filter(CAPRI, year == 2010)
+scenarios <- unique(MAGNET$scenario)
+scenRep_f <- function(scen){
+  df <- oldBase %>% 
+    mutate(scenario = scen)
+}
+newBase <- bind_rows(lapply(scenarios, scenRep_f))
+CAPRI <- bind_rows(newBase, CAPRI) %>%
+  filter(scenario != "BASELINE")
+  
+xtabs(~item + scenario, data = CAPRI)
+
+check2010 <- CAPRI %>%
+  arrange(model, scenario, region, item, variable, unit, year) %>%
+  group_by(model, scenario, region, item, variable, unit) %>%
+  filter(!any(year==2010))
+
+# Remove series with missing values in 2010
+CAPRI <- CAPRI %>%
+  arrange(model, scenario, region, item, variable, unit, year) %>%
+  group_by(model, scenario, region, item, unit, variable) %>%
+  filter(any(year==2010)) 
+xtabs(~item + variable, data = CAPRI)
+
+# CAPRI includes more than the core regions. I filter them out
+regions <- unique(GLOBIOM$region) 
+CAPRI <- filter(CAPRI, region %in% regions)
 
 # Bind in one file
-TOTAL <- rbind(MAGNET, MAgPIE) %>% 
+TOTAL <- rbind(MAGNET, MAgPIE, GLOBIOM, IMAGE, CAPRI) %>% 
               filter(year>=2010)
 
-# Index (2010=100)
-# CHECK: GLOBIOM has various results for CALO with different units
-# CHECK: GLOBIOM PROD has wrong unit.
-# CHECK: product groups GLOBION. VFN = V_F? AGR in MAGNET?
-# CHECK HARMONISATION FOOD GROUPS IN TEMPLATE.
-
+# Calculate index
 TOTAL <- TOTAL %>%
-  arrange(model, scenario, region, item, variable, year) %>%
+  arrange(model, scenario, region, item, variable, unit, year) %>%
   group_by(model, scenario, region, item, variable, unit) %>%
-  mutate(index = value/value[year==2010]*100) %>%
-  arrange(model, scenario, variable, region, item, year)
-
-# Checks on missing values
-check <- TOTAL %>%
-  group_by(model, variable, item) %>%
-  summarize(
-            #n=n()
-            #miss = sum(is.na(Value)),
-            mean = mean(value, na.rm=TRUE)
-            ) %>%
-  spread(model, mean)
-
+  mutate(index = (value/value[year==2010]*1)) %>%
+  arrange(model, scenario, variable, region, item, unit, year)
 
 # Remove NAN values for MAgPIE (GDPT = 0)
 inf.nan.na.clean_f<-function(x){
@@ -116,7 +182,18 @@ inf.nan.na.clean_f<-function(x){
 TOTAL <- inf.nan.na.clean_f(TOTAL) %>% 
   filter(!is.na(index))
 
-xtabs(~model + variable, data = TOTAL)
-xtabs(~model + item, data = TOTAL)
-xtabs(~model + scenario, data = TOTAL)
-write_csv(TOTAL, file.path(dataPath, "ModelResults\\TOTAL.csv"))
+# Checks on missing values
+check <- TOTAL %>%
+  group_by(model, variable, item) %>%
+  summarize(
+    n=n()
+    #miss = sum(is.na(Value)),
+    #mean = mean(value, na.rm=TRUE)
+  ) %>%
+  spread(model, n)
+
+
+xtabs(~variable + model, data = TOTAL)
+xtabs(~region + model, data = TOTAL)
+xtabs(~scenario + model, data = TOTAL)
+write_csv(TOTAL, file.path(dataPath, paste0("ModelResults\\TOTAL_", Sys.Date(), ".csv")))

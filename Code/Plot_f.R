@@ -21,8 +21,8 @@ lineplot_f <- function(df, yas){
     geom_line(data = df, aes(x = year, y = value, linetype = model, colour = scenario), size = 0.5) +
     geom_point(data = point, aes(x = year, y = value, shape = model, colour = scenario)) +
     #scale_colour_manual(values = c("green","cyan","red","purple"), name="Scenario")+ 
-    scale_linetype_manual(values=c("solid","longdash", "dotted"), name = "Model") +
-    scale_shape_manual(values=c(16,17,18), name = "Model") +
+    #scale_linetype_manual(values=c("solid","longdash", "dotted"), name = "Model") +
+    scale_shape_manual(values=seq(0,15), name = "model")  +
     ylab(yas) + xlab("") +
     facet_wrap(~region, scale = "free")
   
@@ -35,7 +35,7 @@ lineplot_f <- function(df, yas){
     theme(panel.border = element_blank(),
           axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
           axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black")) +
-    scale_x_continuous(limits = c(2010,2050.1), breaks = seq(2010,2050,by=10),expand=c(0,0)) + # note that: Limits sets the limits for the axes (added 0.1) but always some space is added. Latter is controlled by expand
+    scale_x_continuous(limits = c(2010,2051), breaks = seq(2010,2050,by=10),expand=c(0,0)) + # note that: Limits sets the limits for the axes (added 0.1) but always some space is added. Latter is controlled by expand
     scale_y_continuous(labels = comma) +
     theme(legend.background=element_blank()) +
     theme(legend.key=element_rect(size=0.5, color="white"), # Increase space between legend boxes - doubt if it works
@@ -44,6 +44,19 @@ lineplot_f <- function(df, yas){
   
   p
 }
+
+
+barplot_f <- function(df, yas){
+  title <- paste(unique(df$variable))
+  p = ggplot(data = df, aes(x = scenario, y = index, fill = scenario)) +
+    geom_bar(stat="identity", colour = "black") + 
+    facet_wrap(~model) +
+    ggtitle(title) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    ylab("Index (2010=100")
+  p
+}
+
 
 # Line plot to compare models including historic information
 lineplot2_f <- function(df, hist, yas){
@@ -70,7 +83,7 @@ lineplot2_f <- function(df, hist, yas){
     theme(panel.border = element_blank(),
           axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
           axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black")) +
-    scale_x_continuous(limits = c(ymin,2050.1), breaks = seq(ymin,2050,by=10),expand=c(0,0)) + # note that: Limits sets the limits for the axes (added 0.1) but always some space is added. Latter is controlled by expand
+    scale_x_continuous(limits = c(ymin,2051), breaks = seq(ymin,2050,by=10),expand=c(0,0)) + # note that: Limits sets the limits for the axes (added 0.1) but always some space is added. Latter is controlled by expand
     scale_y_continuous(labels = comma) +
     theme(legend.background=element_blank()) +
     theme(legend.key=element_rect(size=0.5, color="white"), # Increase space between legend boxes - doubt if it works
