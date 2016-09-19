@@ -1,12 +1,12 @@
 # PROJECT: FOODSECURE agCLIM50
 # ``````````````````````````````````````````````````````````````````````````````````````````````````
 # ``````````````````````````````````````````````````````````````````````````````````````````````````
-# Merge resuls from different models
+# Plot resuls from different models
 # ``````````````````````````````````````````````````````````````````````````````````````````````````
 # `````````````````````````````````````````````````````````````````````````````````````````````````` 
 
 # PACKAGES
-BasePackages <- c("readr", "readxl", "foreign", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "dplyr", "ggplot2", "openxlsx", "scales", "lazyeval", "ggthemes", "scales")
+BasePackages <- c("readr", "readxl", "foreign", "stringr", "gdata", "car", "zoo", "tidyr", "RColorBrewer", "dplyr", "ggplot2", "openxlsx", "scales", "lazyeval", "ggthemes", "scales", "forcats")
 lapply(BasePackages, library, character.only = TRUE)
 #SpatialPackages <- c("rgdal", "gdalUtils", "ggmap", "raster", "rasterVis", "rgeos", "sp", "mapproj", "maptools", "proj4")
 #lapply(SpatialPackages, library, character.only = TRUE)
@@ -27,36 +27,40 @@ options(scipen=99) # surpress scientific notation
 options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e.g. csv) is not turned into factors
 options(digits=2)
 
-
-## COMPARE ALL
-read data
-TOTAL <- read_csv(file.path(dataPath, "ModelResults\\TOTAL.csv"))
-xtabs(~ model + variable, data = TOTAL)
-
-# create df with index observations for more than one model
-# NOT WORKING YET
-# TOTALsel <- TOTAL %>%
-#   group_by(year, scenario, region, item, variable) %>%
-#   filter(length(model) == 2)
+# ## COMPARE ALL
+# # read data
+TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-09-14.csv"))
+TOTAL <- TOTAL %>% 
+  mutate(scenario = fct_relevel(scenario, 
+                                c("SSP1_NoCC", "SSP1_CC6", "SSP1_NoCC_m", "SSP1_CC26_m",
+                                  "SSP2_NoCC", "SSP2_CC6", "SSP2_NoCC_m", "SSP2_CC26_m",
+                                  "SSP3_NoCC", "SSP3_CC6", "SSP3_NoCC_m", "SSP3_CC26_m")))
+xtabs(~ variable + model, data = TOTAL)
+ 
+# # create df with index observations for more than one model
+# # NOT WORKING YET
+# # TOTALsel <- TOTAL %>%
+# #   group_by(year, scenario, region, item, variable) %>%
+# #   filter(length(model) == 2)
+# # 
+# # xtabs(~ model + variable, data = TOTALsel)
 # 
-# xtabs(~ model + variable, data = TOTALsel)
-
-# Line plot - index
-TOTAL_lineplot_i <- TOTAL %>%
-  group_by(variable, item) %>%
-  select(-value) %>%
-  rename(value = index) %>%
-  do(plots = lineplot_f(., "Index"))
-
-pdf(file = file.path(dataPath, "Graphs/TOTAL.pdf"), width = 12, height = 7)
-TOTAL_lineplot_i$plots
-dev.off()
+# # Line plot - index
+# TOTAL_lineplot_i <- TOTAL %>%
+#   group_by(variable, item) %>%
+#   select(-value) %>%
+#   rename(value = index) %>%
+#   do(plots = lineplot_f(., "Index"))
+# 
+# pdf(file = file.path(dataPath, "Graphs/TOTAL.pdf"), width = 12, height = 7)
+# TOTAL_lineplot_i$plots
+# dev.off()
 
 # Comparison GDP, POP and YEXO
 GDP_POP_YEXO <- TOTAL %>%
   filter(variable %in% c("POPT", "GDPT", "YEXO"))
   
-xtabs(~ model + variable, data = GDP_POP_YEXO)
+xtabs(~ variable + model, data = GDP_POP_YEXO)
 
 # Line plot - index
 GDP_POP_YEXO_lineplot_i <- GDP_POP_YEXO %>%
@@ -68,6 +72,157 @@ GDP_POP_YEXO_lineplot_i <- GDP_POP_YEXO %>%
 pdf(file = file.path(dataPath, "Graphs/GDP_POP_YEXO_i.pdf"), width = 12, height = 7)
 GDP_POP_YEXO_lineplot_i$plots
 dev.off()
+
+# BAR GRAPHS for WLD
+# Create colours
+red <- colorRampPalette(c("orange", "darkred"))
+blue <- colorRampPalette(c("skyblue", "darkblue"))
+green <- colorRampPalette(c("greenyellow", "darkgreen"))
+colour <- c(green(4), blue(4), red(4))
+names(colour) <- levels(TOTAL$scenario)
+
+
+# Function to plot bar graph
+barplot_f <- function(df, var, itm){
+  df <- filter(df, variable == var, item == itm)
+  title <- paste(var, itm, sep = "_")
+  p = ggplot(data = df, aes(x = scenario, y = index, fill = scenario)) +
+    scale_fill_manual(values = colour) +
+    geom_bar(stat="identity", colour = "black") + 
+    facet_wrap(~model) +
+    ggtitle(title) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    ylab("Index (2010=1)")
+  p
+}
+
+
+# Create database for plotting
+TOTAL_WLD <- filter(TOTAL, region == "WLD", year == 2050)
+xtabs(~variable + unit, data = TOTAL_WLD)
+
+# Create pdf
+pdf(file = file.path(dataPath, "Graphs/Sevilla.pdf"), width = 12, height = 7)
+barplot_f(TOTAL_WLD, "XPRP", "AGR")
+barplot_f(TOTAL_WLD, "XPRP", "CRP")
+barplot_f(TOTAL_WLD, "XPRP", "LSP")
+
+barplot_f(TOTAL_WLD, "PROD", "AGR")
+barplot_f(TOTAL_WLD, "PROD", "CRP")
+barplot_f(TOTAL_WLD, "PROD", "LSP")
+barplot_f(TOTAL_WLD, "PROD", "WHT")
+barplot_f(TOTAL_WLD, "PROD", "CGR")
+barplot_f(TOTAL_WLD, "PROD", "DRY")
+barplot_f(TOTAL_WLD, "PROD", "NRM")
+barplot_f(TOTAL_WLD, "PROD", "RIC")
+barplot_f(TOTAL_WLD, "PROD", "RUM")
+
+barplot_f(TOTAL_WLD, "FOOD", "AGR")
+barplot_f(TOTAL_WLD, "FOOD", "CRP")
+barplot_f(TOTAL_WLD, "FOOD", "LSP")
+barplot_f(TOTAL_WLD, "FOOD", "WHT")
+barplot_f(TOTAL_WLD, "FOOD", "CGR")
+barplot_f(TOTAL_WLD, "FOOD", "DRY")
+barplot_f(TOTAL_WLD, "FOOD", "NRM")
+barplot_f(TOTAL_WLD, "FOOD", "RIC")
+barplot_f(TOTAL_WLD, "FOOD", "RUM")
+
+barplot_f(TOTAL_WLD, "FEED", "AGR")
+barplot_f(TOTAL_WLD, "FEED", "CRP")
+#barplot_f(TOTAL_WLD, "FEED", "LSP")
+barplot_f(TOTAL_WLD, "FEED", "WHT")
+barplot_f(TOTAL_WLD, "FEED", "CGR")
+barplot_f(TOTAL_WLD, "FEED", "DRY")
+barplot_f(TOTAL_WLD, "FEED", "NRM")
+barplot_f(TOTAL_WLD, "FEED", "RIC")
+barplot_f(TOTAL_WLD, "FEED", "RUM")
+
+barplot_f(TOTAL_WLD, "OTHU", "AGR")
+barplot_f(TOTAL_WLD, "OTHU", "CRP")
+barplot_f(TOTAL_WLD, "OTHU", "LSP")
+barplot_f(TOTAL_WLD, "OTHU", "WHT")
+barplot_f(TOTAL_WLD, "OTHU", "CGR")
+barplot_f(TOTAL_WLD, "OTHU", "DRY")
+barplot_f(TOTAL_WLD, "OTHU", "NRM")
+barplot_f(TOTAL_WLD, "OTHU", "RIC")
+barplot_f(TOTAL_WLD, "OTHU", "RUM")
+
+barplot_f(TOTAL_WLD, "LAND", "AGR")
+barplot_f(TOTAL_WLD, "LAND", "CRP")
+barplot_f(TOTAL_WLD, "LAND", "GRS")
+
+barplot_f(TOTAL_WLD, "AREA", "AGR")
+barplot_f(TOTAL_WLD, "AREA", "CRP")
+barplot_f(TOTAL_WLD, "AREA", "LSP")
+
+barplot_f(TOTAL_WLD, "YILD", "GRS")
+barplot_f(TOTAL_WLD, "YILD", "CRP")
+
+barplot_f(TOTAL_WLD, "YEXO", "CRP")
+#barplot_f(TOTAL_WLD, "YEXO", "GRS")
+
+barplot_f(TOTAL_WLD, "NETT", "AGR")
+barplot_f(TOTAL_WLD, "NETT", "CRP")
+barplot_f(TOTAL_WLD, "NETT", "LSP")
+barplot_f(TOTAL_WLD, "NETT", "WHT")
+barplot_f(TOTAL_WLD, "NETT", "CGR")
+barplot_f(TOTAL_WLD, "NETT", "DRY")
+barplot_f(TOTAL_WLD, "NETT", "NRM")
+barplot_f(TOTAL_WLD, "NETT", "RIC")
+barplot_f(TOTAL_WLD, "NETT", "RUM")
+
+barplot_f(TOTAL_WLD, "IMPO", "AGR")
+barplot_f(TOTAL_WLD, "IMPO", "CRP")
+barplot_f(TOTAL_WLD, "IMPO", "LSP")
+barplot_f(TOTAL_WLD, "IMPO", "WHT")
+barplot_f(TOTAL_WLD, "IMPO", "CGR")
+barplot_f(TOTAL_WLD, "IMPO", "DRY")
+barplot_f(TOTAL_WLD, "IMPO", "NRM")
+barplot_f(TOTAL_WLD, "IMPO", "RIC")
+
+barplot_f(TOTAL_WLD, "EXPO", "AGR")
+barplot_f(TOTAL_WLD, "EXPO", "CRP")
+barplot_f(TOTAL_WLD, "EXPO", "LSP")
+barplot_f(TOTAL_WLD, "EXPO", "WHT")
+barplot_f(TOTAL_WLD, "EXPO", "CGR")
+barplot_f(TOTAL_WLD, "EXPO", "DRY")
+barplot_f(TOTAL_WLD, "EXPO", "NRM")
+barplot_f(TOTAL_WLD, "EXPO", "RIC")
+
+barplot_f(TOTAL_WLD, "CONS", "AGR")
+barplot_f(TOTAL_WLD, "CONS", "CRP")
+barplot_f(TOTAL_WLD, "CONS", "LSP")
+barplot_f(TOTAL_WLD, "CONS", "WHT")
+barplot_f(TOTAL_WLD, "CONS", "CGR")
+barplot_f(TOTAL_WLD, "CONS", "DRY")
+barplot_f(TOTAL_WLD, "CONS", "NRM")
+barplot_f(TOTAL_WLD, "CONS", "RIC")
+barplot_f(TOTAL_WLD, "CONS", "RUM")
+
+barplot_f(TOTAL_WLD, "EMIS", "TOT")
+barplot_f(TOTAL_WLD, "EMIS", "AGR")
+barplot_f(TOTAL_WLD, "EMIS", "CRP")
+barplot_f(TOTAL_WLD, "EMIS", "LSP")
+
+barplot_f(TOTAL_WLD, "ECO2", "TOT")
+#barplot_f(TOTAL_WLD, "ECO2", "AGR")
+#barplot_f(TOTAL_WLD, "ECO2", "CRP")
+#barplot_f(TOTAL_WLD, "ECO2", "LSP")
+
+barplot_f(TOTAL_WLD, "ECH4", "TOT")
+barplot_f(TOTAL_WLD, "ECH4", "AGR")
+barplot_f(TOTAL_WLD, "ECH4", "CRP")
+barplot_f(TOTAL_WLD, "ECH4", "LSP")
+
+barplot_f(TOTAL_WLD, "GDPT", "TOT")
+barplot_f(TOTAL_WLD, "POPT", "TOT")
+dev.off()
+
+xtabs(~variable + unit, data = MAgPIE)
+# bar graph - index
+
+##############################
+# Part below is from FOODSECURE, not adapted yet to agCLIM50
 
 # Comparison of consumption
 CONS <- TOTAL2 %>% 
