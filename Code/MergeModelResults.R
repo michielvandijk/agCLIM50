@@ -182,7 +182,7 @@ check <- TOTAL %>%
   ) %>%
   spread(model, n)
 
-
+xtabs(~unit + model, data = TOTAL)
 xtabs(~variable + model, data = TOTAL)
 xtabs(~region + model, data = TOTAL)
 xtabs(~scenario + model, data = TOTAL)
