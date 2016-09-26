@@ -29,7 +29,7 @@ options(digits=2)
 
 # ## COMPARE ALL
 # # read data
-TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-09-14.csv"))
+TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-09-26.csv"))
 TOTAL <- TOTAL %>% 
   mutate(scenario = fct_relevel(scenario, 
                                 c("SSP1_NoCC", "SSP1_CC6", "SSP1_NoCC_m", "SSP1_CC26_m",
@@ -61,6 +61,7 @@ GDP_POP_YEXO <- TOTAL %>%
   filter(variable %in% c("POPT", "GDPT", "YEXO"))
   
 xtabs(~ variable + model, data = GDP_POP_YEXO)
+xtabs(~ unit + model, data = GDP_POP_YEXO)
 
 # Line plot - index
 GDP_POP_YEXO_lineplot_i <- GDP_POP_YEXO %>%
@@ -102,7 +103,7 @@ TOTAL_WLD <- filter(TOTAL, region == "WLD", year == 2050)
 xtabs(~variable + unit, data = TOTAL_WLD)
 
 # Create pdf
-pdf(file = file.path(dataPath, "Graphs/Sevilla.pdf"), width = 12, height = 7)
+pdf(file = file.path(dataPath, "Graphs/Sevilla v2.pdf"), width = 12, height = 7)
 barplot_f(TOTAL_WLD, "XPRP", "AGR")
 barplot_f(TOTAL_WLD, "XPRP", "CRP")
 barplot_f(TOTAL_WLD, "XPRP", "LSP")

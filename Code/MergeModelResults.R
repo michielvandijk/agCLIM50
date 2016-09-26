@@ -46,21 +46,12 @@ ma <- function(x,n=5){stats::filter(x,rep(1/n,n), sides=2)}
 
 # MAgPIE
 # Process
-MAgPIE <- read_csv(file.path(dataPath, "ModelResults\\agclim50_MAgPIE.csv")) %>%
+MAgPIE <- read_csv(file.path(dataPath, "ModelResults\\agclim50_MAgPIE_2016-09-22.csv")) %>%
   rename(model = Model, scenario = Scenario, region = Region, item = Item, unit = Unit, variable = Variable, year = Year, value = Value)
 
 # Check
 summary(MAgPIE)
 xtabs(~item + variable, data = MAgPIE)
-
-# Some values are infinite => set to NA
-inf <- filter(MAgPIE, is.infinite(value))
-MAgPIE$value[is.infinite(MAgPIE$value)] <- NA
-
-# Rename several items that have wrong name
-# CHECK WITH MAgPIE about other names..
-MAgPIE$item[MAgPIE$item == "LVS"] <- "LSP"
-MAgPIE$item[MAgPIE$item == "SUG"] <- "SGC"
 
 # Check if there are variables with missing information for 2010
 # There are a few combination in MAgPIE that lack 2010 data
@@ -76,13 +67,9 @@ MAgPIE <- MAgPIE %>%
   filter(any(year==2010)) 
 xtabs(~item + variable, data = MAgPIE)
 
-# MAgPIE has duplicate unit for PROD. I use 1000 t and remove 1000 t prt
-MAgPIE <- filter(MAgPIE, !(unit %in% c("1000 t prt")))
-xtabs(~variable + unit, data = MAgPIE)
-
 # GLOBIOM
 # Process
-GLOBIOM <- read_csv(file.path(dataPath, "ModelResults\\agclim50_GLOBIOM_20160907.csv")) %>%
+GLOBIOM <- read_csv(file.path(dataPath, "ModelResults\\agclim50_GLOBIOM_20160926.csv")) %>%
   rename(model = Model, scenario = Scenario, region = Region, item = Item, unit = Unit, variable = Variable, year = Year, value = Value) %>%
   mutate(variable = toupper(variable))
 
@@ -92,7 +79,7 @@ xtabs(~item + variable, data = GLOBIOM)
 xtabs(~variable + unit, data = GLOBIOM)
 
 # GLOBIOM has duplicate units for some variable. I exclude 1000 dm t and dm t/ha
-GLOBIOM <- filter(GLOBIOM, !(unit %in% c("1000 dm t", "dm t/ha")))
+# GLOBIOM <- filter(GLOBIOM, !(unit %in% c("1000 dm t", "dm t/ha")))
 
 # Check if there are variables with missing information for 2010
 check2010 <- GLOBIOM %>%
@@ -109,7 +96,7 @@ xtabs(~item + variable, data = GLOBIOM)
 
 # IMAGE
 # Process
-IMAGE <- read_csv(file.path(dataPath, "ModelResults\\agclim50_IMAGE_2016-09-13.csv")) %>%
+IMAGE <- read_csv(file.path(dataPath, "ModelResults\\AGCLIM50_IMAGE_23092016.csv")) %>%
   rename(model = Model, scenario = Scenario, region = Region, item = Item, unit = Unit, variable = Variable, year = Year, value = Value) %>%
   mutate(year = as.numeric(year))
 
@@ -159,12 +146,14 @@ CAPRI <- CAPRI %>%
 xtabs(~item + variable, data = CAPRI)
 
 # CAPRI includes more than the core regions. I filter them out
+xtabs(~item + region, data = CAPRI)
 regions <- unique(GLOBIOM$region) 
 CAPRI <- filter(CAPRI, region %in% regions)
 
 # Bind in one file
 TOTAL <- rbind(MAGNET, MAgPIE, GLOBIOM, IMAGE, CAPRI) %>% 
               filter(year>=2010)
+summary(TOTAL)
 
 # Calculate index
 TOTAL <- TOTAL %>%
@@ -179,6 +168,7 @@ inf.nan.na.clean_f<-function(x){
   x[do.call(cbind, lapply(x, is.infinite))]<-NA
   return(x)
 }
+
 TOTAL <- inf.nan.na.clean_f(TOTAL) %>% 
   filter(!is.na(index))
 
