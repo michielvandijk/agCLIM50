@@ -52,6 +52,7 @@ MAgPIE <- read_csv(file.path(dataPath, "ModelResults\\agclim50_MAgPIE_2016-09-22
 # Check
 summary(MAgPIE)
 xtabs(~item + variable, data = MAgPIE)
+xtabs(~unit + variable, data = MAgPIE)
 
 # Check if there are variables with missing information for 2010
 # There are a few combination in MAgPIE that lack 2010 data
@@ -60,12 +61,12 @@ check2010 <- MAgPIE %>%
   group_by(model, scenario, region, item, variable) %>%
   filter(!any(year==2010))
 
-# Remove series with missing values in 2010
-MAgPIE <- MAgPIE %>%
-  arrange(model, scenario, region, item, variable, unit, year) %>%
-  group_by(model, scenario, region, item, unit, variable) %>%
-  filter(any(year==2010)) 
-xtabs(~item + variable, data = MAgPIE)
+# # Remove series with missing values in 2010
+# MAgPIE <- MAgPIE %>%
+#   arrange(model, scenario, region, item, variable, unit, year) %>%
+#   group_by(model, scenario, region, item, unit, variable) %>%
+#   filter(any(year==2010)) 
+# xtabs(~item + variable, data = MAgPIE)
 
 # GLOBIOM
 # Process
@@ -115,7 +116,7 @@ MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-09-13
 xtabs(~item + scenario, data = MAGNET)
 
 # CAPRI
-CAPRI <- read_csv(file.path(dataPath, "ModelResults\\AGCLIM50_CAPRI_v1.csv")) %>%
+CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_20160929.csv")) %>%
   setNames(c("region", "variable", "item", "year", "scenario", "value")) %>%
   mutate(model = "CAPRI",
          unit = NA)

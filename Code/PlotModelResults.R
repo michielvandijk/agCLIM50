@@ -29,7 +29,7 @@ options(digits=2)
 
 # ## COMPARE ALL
 # # read data
-TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-09-26.csv"))
+TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-09-29.csv"))
 TOTAL <- TOTAL %>% 
   mutate(scenario = fct_relevel(scenario, 
                                 c("SSP1_NoCC", "SSP1_CC6", "SSP1_NoCC_m", "SSP1_CC26_m",
@@ -57,6 +57,14 @@ xtabs(~ variable + model, data = TOTAL)
 # dev.off()
 
 # Comparison GDP, POP and YEXO
+# Some models present two units for YEXO and YILD
+checkUnit <- filter(TOTAL, variable %in% c("YEXO", "YILD"))
+xtabs(~ unit + model + variable, data = checkUnit)
+
+# filter out fm t/ha which is only presented by GLOBIOM
+TOTAL <- filter(TOTAL, unit != "fm t/ha")
+xtabs(~ unit + model, data = TOTAL)
+
 GDP_POP_YEXO <- TOTAL %>%
   filter(variable %in% c("POPT", "GDPT", "YEXO"))
   
@@ -103,7 +111,7 @@ TOTAL_WLD <- filter(TOTAL, region == "WLD", year == 2050)
 xtabs(~variable + unit, data = TOTAL_WLD)
 
 # Create pdf
-pdf(file = file.path(dataPath, "Graphs/Sevilla v2.pdf"), width = 12, height = 7)
+pdf(file = file.path(dataPath, paste("Graphs/Sevilla_", Sys.Date(),".pdf")), width = 12, height = 7)
 barplot_f(TOTAL_WLD, "XPRP", "AGR")
 barplot_f(TOTAL_WLD, "XPRP", "CRP")
 barplot_f(TOTAL_WLD, "XPRP", "LSP")
@@ -133,10 +141,10 @@ barplot_f(TOTAL_WLD, "FEED", "CRP")
 #barplot_f(TOTAL_WLD, "FEED", "LSP")
 barplot_f(TOTAL_WLD, "FEED", "WHT")
 barplot_f(TOTAL_WLD, "FEED", "CGR")
-barplot_f(TOTAL_WLD, "FEED", "DRY")
-barplot_f(TOTAL_WLD, "FEED", "NRM")
+#barplot_f(TOTAL_WLD, "FEED", "DRY")
+#barplot_f(TOTAL_WLD, "FEED", "NRM")
 barplot_f(TOTAL_WLD, "FEED", "RIC")
-barplot_f(TOTAL_WLD, "FEED", "RUM")
+#barplot_f(TOTAL_WLD, "FEED", "RUM")
 
 barplot_f(TOTAL_WLD, "OTHU", "AGR")
 barplot_f(TOTAL_WLD, "OTHU", "CRP")
