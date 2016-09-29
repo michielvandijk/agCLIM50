@@ -40,7 +40,7 @@ The database is stored in the project dropbox model results folder under the nam
 At the moment I am doing some quick checks to analyse if data is missing or otherwise is not correct. The checks involve making graphs of all variables across models and regions, which are stored in the folder _graphs_ and several simple cross tables (see below). I only had time to take a superficial look at the data but found the following:
 
 ## GDP, POP and YEXO
-These are the three key exogenous drivers and are supposed to be the same (overlapping lines) across models. Nevertheless, the figures show (minor) differences. *POPT* seems consistent but *GDPT* shows large differences for a number of regions. Also *YEXO* shows considerable differences across models.
+These are the three key exogenous drivers and are supposed to be the same (overlapping lines) across models. Nevertheless, the figures show (minor) differences. *POPT* seems consistent but *GDPT* shows large differences for a number of regions. Also *YEXO* shows considerable differences across models. This might becaused by the different definitions the models use for yield (e.g. in monetary values such as MAGNET and CAPRI, dm/ha or fm/ha).
 
 ## MAgPIE
 * Several variables are not calculated over _AGR_ and _TOT_.
