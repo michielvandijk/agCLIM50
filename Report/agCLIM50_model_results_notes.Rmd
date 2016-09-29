@@ -1,0 +1,93 @@
+---
+title: "agCLIM50"
+author: "Michiel van Dijk"
+date: "29 September 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_data, echo = FALSE, message = FALSE}
+library(readr)
+dataPath <- "D:\\Dropbox\\AgClim50 scenario results"
+TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-09-29.csv"))
+```
+
+# Introduction
+This document provides notes on the agCLIM50 model results database. At present the database includes data from the following models:
+
+* MAGNET
+* GLOBIOM
+* MAgPIE
+* IMAGE
+* CAPRI
+
+The database is stored in the project dropbox model results folder under the name _TOTAL.csv_. In line with the reporting template the database includes the following variables:
+
+- year
+- item
+- region
+- variable
+- unit
+- value 
+- model
+- scenario
+- index: an index (2010 = 1)
+
+# Missing and 'strange' data
+At the moment I am doing some quick checks to analyse if data is missing or otherwise is not correct. The checks involve making graphs of all variables across models and regions, which are stored in the folder _graphs_ and several simple cross tables (see below). I only had time to take a superficial look at the data but found the following:
+
+## GDP, POP and YEXO
+These are the three key exogenous drivers and are supposed to be the same (overlapping lines) across models. Nevertheless, the figures show (minor) differences. *POPT* seems consistent but *GDPT* shows large differences for a number of regions. Also *YEXO* shows considerable differences across models. This might becaused by the different definitions the models use for yield (e.g. in monetary values such as MAGNET and CAPRI, dm/ha or fm/ha).
+
+## MAgPIE
+* Several variables are not calculated over _AGR_ and _TOT_.
+
+## GLOBIOM
+* Several variables (see table below) carry two units (often dm and fm). This results in duplicated values in the figures causing problems. I decided to exclude fm t/ha and use dm t/ha, which seems comparable to other models.
+* For _IMPO_, _EXPO_ and _NETT_ for some regions, data for 2010 (and other years is missing) and therefore the index cannot be calculated. I remove these series.
+
+## CAPRI
+* CAPRI does not present values for 2010 for each of the scenarios. It does however present a _BASELINE_. I assume the _BASELINE_ values can be used for 2010 for each scenario.
+* Even after adding the baseline values, it seems that _EXPO_TOT_ and _OTHU_ for some variables year 2010 is missing. I set those values to NA.
+* CAPRI is missing many variables and does not present unit information (see coverage).
+* CAPRI includes many more regions. I filter them out. 
+
+# IMAGE
+* Does not cover all variables.
+
+# MAGNET
+* Does not include information on CALO although the model can generate this. 
+
+
+\newpage
+# Variable coverage
+```{r variable, echo = FALSE, message = FALSE}
+xtabs(~ variable + model, data = TOTAL)
+```
+
+\newpage
+# Region coverage
+```{r region, echo = FALSE, message = FALSE}
+xtabs(~ region + model, data = TOTAL)
+```
+
+\newpage
+# Item coverage
+```{r item, echo = FALSE, message = FALSE}
+xtabs(~ item + model, data = TOTAL)
+```
+
+\newpage
+# Unit coverage
+```{r unit, echo = FALSE, message = FALSE}
+xtabs(~ unit + model, data = TOTAL)
+```
+
+\newpage
+# Scenario coverage
+```{r scenario, echo = FALSE, message = FALSE}
+xtabs(~ scenario + model, data = TOTAL)
+```
