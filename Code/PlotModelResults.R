@@ -29,7 +29,7 @@ options(digits=2)
 
 # ## COMPARE ALL
 # # read data
-TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-09-29.csv"))
+TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-09-30.csv"))
 TOTAL <- TOTAL %>% 
   mutate(scenario = fct_relevel(scenario, 
                                 c("SSP1_NoCC", "SSP1_CC6", "SSP1_NoCC_m", "SSP1_CC26_m",
@@ -62,7 +62,7 @@ checkUnit <- filter(TOTAL, variable %in% c("YEXO", "YILD"))
 xtabs(~ unit + model + variable, data = checkUnit)
 
 # filter out fm t/ha which is only presented by GLOBIOM
-TOTAL <- filter(TOTAL, unit != "fm t/ha")
+TOTAL <- filter(TOTAL, !(unit == "fm t/ha" & model == "GLOBIOM"))
 xtabs(~ unit + model, data = TOTAL)
 
 GDP_POP_YEXO <- TOTAL %>%
