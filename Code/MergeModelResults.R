@@ -112,7 +112,7 @@ check2010 <- IMAGE %>%
   filter(!any(year==2010))
 
 # MAGNET
-MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-09-13.csv")) 
+MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-10-04.csv")) 
 xtabs(~item + scenario, data = MAGNET)
 
 # CAPRI
