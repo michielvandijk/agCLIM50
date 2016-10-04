@@ -385,7 +385,7 @@ MAGNET3_raw[["YILD"]] <- bind_rows(
           filter(MAGNET1_2, variable %in% c("AREA") & 
                   sector %in% c("AGR", "CGR", "CRP", "LSP", "DRY", "OSD", "PFB", "RIC", "RUM", "SGC", "VFN", 
                                   "WHT", "TOT")),
-          filter(MAGNET1_2, variable %in% c("PROD") & unit %in% c("mil USD") &
+          filter(MAGNET1_2, variable %in% c("PROD") & unit %in% c("mil 2007 USD") &
                  sector %in% c("AGR", "CGR", "CRP", "DRY", "OSD", "PFB", "RIC", "RUM", "SGC", "VFN", 
                                  "WHT", "TOT")),
           PRODlsp) %>% # Only sectors with land
