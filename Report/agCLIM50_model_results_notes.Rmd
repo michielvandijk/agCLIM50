@@ -11,8 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load_data, echo = FALSE, message = FALSE}
 library(readr)
-dataPath <- "D:\\Dropbox\\AgClim50 scenario results"
-TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-09-29.csv"))
+dataPath <- "C:\\Users\\vandijkm\\Dropbox\\AgClim50 scenario results"
+TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-10-06.csv"))
 ```
 
 # Introduction
