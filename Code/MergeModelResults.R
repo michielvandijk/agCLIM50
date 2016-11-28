@@ -14,7 +14,7 @@ AdditionalPackages <-  c("WDI", "countrycode")
 lapply(AdditionalPackages, library, character.only = TRUE)
 
 # SET PATHS
-wdPath<-"D:\\Data\\Projects\\agCLIM50"
+wdPath<-"D:\\Data\\Github\\agCLIM50"
 setwd(wdPath)
 
 dataPath <- "D:\\Dropbox\\AgClim50 scenario results"
@@ -25,24 +25,8 @@ options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e
 options(digits=2)
 
 # FUNCTIONS
-# Plus function that ensures NA + NA is NA not 0 as in sum
-plus <- function(x) {
-  if(all(is.na(x))){
-    c(x[0],NA)} else {
-      sum(x,na.rm = TRUE)}
-}
 
-# ma function to calculate moving average
-ma <- function(x,n=5){stats::filter(x,rep(1/n,n), sides=2)}
-
-# ANALYSIS
-# Combine files of four models and add FAOSTAT data
-# MAGNET2FS_REG <- read.csv(file.path(".\\Mappings\\FStoISO_MAGNETCountryAggregation.csv")) %>%
-#   dplyr::select(Region = FS_region_name, FS_region_name_short) %>%
-#   unique()
-
-
-## Read data per model
+# READ DATA
 
 # MAgPIE
 # Process
@@ -55,7 +39,7 @@ xtabs(~item + variable, data = MAgPIE)
 xtabs(~unit + variable, data = MAgPIE)
 
 # Check if there are variables with missing information for 2010
-# There are a few combination in MAgPIE that lack 2010 data
+# There are a few combination in MAgPIE that lack 2010 data => corrected in later updates
 check2010 <- MAgPIE %>%
   arrange(model, scenario, region, item, variable, year) %>%
   group_by(model, scenario, region, item, variable) %>%
@@ -112,7 +96,7 @@ check2010 <- IMAGE %>%
   filter(!any(year==2010))
 
 # MAGNET
-MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-10-04.csv")) 
+MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-10-06.csv")) 
 xtabs(~item + scenario, data = MAGNET)
 
 # CAPRI
@@ -187,4 +171,6 @@ xtabs(~unit + model, data = TOTAL)
 xtabs(~variable + model, data = TOTAL)
 xtabs(~region + model, data = TOTAL)
 xtabs(~scenario + model, data = TOTAL)
+
+# Save data
 write_csv(TOTAL, file.path(dataPath, paste0("ModelResults\\TOTAL_", Sys.Date(), ".csv")))

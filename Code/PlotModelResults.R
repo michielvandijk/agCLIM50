@@ -14,7 +14,7 @@ AdditionalPackages <-  c("WDI", "countrycode")
 lapply(AdditionalPackages, library, character.only = TRUE)
 
 # SET PATHS
-wdPath <- "D:\\Data\\Projects\\agCLIM50"
+wdPath <- "D:\\Data\\Github\\agCLIM50"
 setwd(wdPath)
 
 dataPath <- "D:\\Dropbox\\AgClim50 scenario results"
