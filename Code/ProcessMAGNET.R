@@ -24,7 +24,7 @@ igdx(GAMSPath)
 # Make sure GDX2HAR.exe and gdxiomh.dll are located in one folder.
 
 ### Set working folder
-wdPath <- "D:\\Jason\\MAGNET_PBL_SSP_PPP_NUTcor2noCCcor"
+wdPath <- "D:\\Diti\\MAGNET_PBL_SSP_PPP_NUTcor2noCCcor"
 setwd(wdPath)  
 
 ### Set data result path
@@ -45,7 +45,7 @@ periods<-c("2007-2010", "2010-2020", "2020-2030", "2030-2050")
 
 
 ### Source functions
-source("D:\\R\\agCLIM50\\Code\\Load_Magnet.r")
+source("D:\\Diti\\R\\agCLIM50\\Code\\Load_Magnet.r")
 
 ### FUNCTIONS
 # Simple aggregation over sectors using mapping
@@ -71,7 +71,7 @@ wsubtot_f <-function(df, grp, tvar, weight, map){
     ungroup
 }
 
-projectPath <- "D:\\R\\agCLIM50" 
+projectPath <- "D:\\Diti\\R\\agCLIM50" 
 
 ### CREATE MAPPINGS
 # Load concordance table MAGNET2FS
