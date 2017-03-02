@@ -1,7 +1,7 @@
 ---
 title: "agCLIM50 word"
 author: "Michiel van Dijk"
-date: "4 October 2016"
+date: "2 March 2017"
 output: word_document
 ---
 
@@ -17,7 +17,7 @@ library(dplyr)
 library(forcats)
 
 dataPath <- "C:\\Users\\vandijkm\\Dropbox\\AgClim50 scenario results"
-TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-10-06.csv"))
+TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2017-03-02.csv"))
 
 TOTAL <- TOTAL %>% 
   mutate(scenario = fct_relevel(scenario, 
