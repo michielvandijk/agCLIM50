@@ -13,11 +13,9 @@ lapply(BasePackages, library, character.only = TRUE)
 AdditionalPackages <-  c("WDI", "countrycode")
 lapply(AdditionalPackages, library, character.only = TRUE)
 
-# SET PATHS
-wdPath<-"D:\\Data\\Github\\agCLIM50"
-setwd(wdPath)
+# SET DATAPATH
+source("Code/get_dataPath.r")
 
-dataPath <- "D:\\Dropbox\\AgClim50 scenario results"
 
 # R SETTINGS
 options(scipen=99) # surpress scientific notation
@@ -100,22 +98,25 @@ MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-10-06
 xtabs(~item + scenario, data = MAGNET)
 
 # CAPRI
-CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_20160929.csv")) %>%
+CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_20170302.csv")) %>%
   setNames(c("region", "variable", "item", "year", "scenario", "value")) %>%
   mutate(model = "CAPRI",
          unit = NA)
-
-# CAPRI is missing base data values. It has BASELINE values. I assume this is the base for each scenario
-oldBase <- filter(CAPRI, year == 2010)
-scenarios <- unique(MAGNET$scenario)
-scenRep_f <- function(scen){
-  df <- oldBase %>% 
-    mutate(scenario = scen)
-}
-newBase <- bind_rows(lapply(scenarios, scenRep_f))
-CAPRI <- bind_rows(newBase, CAPRI) %>%
-  filter(scenario != "BASELINE")
+xtabs(~year + variable, data = CAPRI)
+# 
+# # CAPRI is missing base data values. It has BASELINE values. I assume this is the base for each scenario
+# oldBase <- filter(CAPRI, year == 2010)
+# scenarios <- unique(MAGNET$scenario)
+# scenRep_f <- function(scen){
+#   df <- oldBase %>% 
+#     mutate(scenario = scen)
+# }
+# newBase <- bind_rows(lapply(scenarios, scenRep_f))
+# CAPRI <- bind_rows(newBase, CAPRI) %>%
+#   filter(scenario != "BASELINE")
   
+# Remove CAPRI baseline
+CAPRI <- filter(CAPRI, scenario != "BASELINE")
 xtabs(~item + scenario, data = CAPRI)
 
 check2010 <- CAPRI %>%
@@ -134,9 +135,10 @@ xtabs(~item + variable, data = CAPRI)
 xtabs(~item + region, data = CAPRI)
 regions <- unique(GLOBIOM$region) 
 CAPRI <- filter(CAPRI, region %in% regions)
+xtabs(~year + variable, data = CAPRI)
 
 # Bind in one file
-TOTAL <- rbind(MAGNET, MAgPIE, GLOBIOM, IMAGE, CAPRI) %>% 
+TOTAL <- bind_rows(MAGNET, MAgPIE, GLOBIOM, IMAGE, CAPRI) %>% 
               filter(year>=2010)
 summary(TOTAL)
 

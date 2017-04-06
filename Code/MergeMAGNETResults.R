@@ -14,8 +14,7 @@ AdditionalPackages <-  c("WDI", "countrycode")
 lapply(AdditionalPackages, library, character.only = TRUE)
 
 # SET PATHS
-wdPath<-"D:\\R\\agCLIM50"
-setwd(wdPath)
+source("Code/get_dataPath.r")
 
 # R SETTINGS
 options(scipen=99) # surpress scientific notation
