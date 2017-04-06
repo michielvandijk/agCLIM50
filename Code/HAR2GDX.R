@@ -17,13 +17,11 @@ lapply(AdditionalPackages,library, character.only=TRUE)
 
 # load required GAMS libraries (folder user specific)
 GAMSPath <- "C:\\24.4"
-#GAMSPath <- "D:\\GAMS64\\GAMS24.2"
-#GAMSPath <- "C:\\Program Files\\GAMS\\win64\\24.6"
 igdx(GAMSPath)
 # Make sure GDX2HAR.exe and gdxiomh.dll are located in one folder.
 
 # Set working folder
-wdPath <- "D:\\Diti\\MAGNET_PBL_SSP_PPP_NUTcor2noCCcor"
+wdPath <- "D:\\Jason\\MAGNET_PBL_SSP_PPP_NUTcor2noCCcor"
 setwd(wdPath)  
 
 # FUNCTIONS
