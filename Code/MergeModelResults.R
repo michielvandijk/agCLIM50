@@ -171,6 +171,7 @@ check <- TOTAL %>%
 
 xtabs(~unit + model, data = TOTAL)
 xtabs(~variable + model, data = TOTAL)
+xtabs(~variable + item, data = TOTAL)
 xtabs(~region + model, data = TOTAL)
 xtabs(~scenario + model, data = TOTAL)
 

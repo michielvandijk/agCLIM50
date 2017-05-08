@@ -1,7 +1,7 @@
 ---
 title: "agCLIM50 word"
 author: "Michiel van Dijk"
-date: "2 March 2017"
+date: "8 May 2017"
 output: word_document
 ---
 
@@ -156,6 +156,9 @@ barplot_f(TOTAL_WLD, "ECO2", "TOT")
 #barplot_f(TOTAL_WLD, "ECO2", "AGR")
 #barplot_f(TOTAL_WLD, "ECO2", "CRP")
 #barplot_f(TOTAL_WLD, "ECO2", "LSP")
+
+barplot_f(TOTAL_WLD, "EN2O", "TOT")
+barplot_f(TOTAL_WLD, "EN2O", "AGR")
 
 barplot_f(TOTAL_WLD, "ECH4", "TOT")
 barplot_f(TOTAL_WLD, "ECH4", "AGR")
