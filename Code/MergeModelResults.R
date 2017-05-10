@@ -98,12 +98,12 @@ MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-10-06
 xtabs(~item + scenario, data = MAGNET)
 
 # CAPRI
-CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_20170302.csv")) %>%
+CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_20170510.csv")) %>%
   setNames(c("region", "variable", "item", "year", "scenario", "value")) %>%
   mutate(model = "CAPRI",
          unit = NA)
 xtabs(~year + variable, data = CAPRI)
-# 
+ 
 # # CAPRI is missing base data values. It has BASELINE values. I assume this is the base for each scenario
 # oldBase <- filter(CAPRI, year == 2010)
 # scenarios <- unique(MAGNET$scenario)
@@ -136,6 +136,7 @@ xtabs(~item + region, data = CAPRI)
 regions <- unique(GLOBIOM$region) 
 CAPRI <- filter(CAPRI, region %in% regions)
 xtabs(~year + variable, data = CAPRI)
+xtabs(~variable + item, data = CAPRI)
 
 # Bind in one file
 TOTAL <- bind_rows(MAGNET, MAgPIE, GLOBIOM, IMAGE, CAPRI) %>% 
