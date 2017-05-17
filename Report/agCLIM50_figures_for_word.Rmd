@@ -17,7 +17,7 @@ library(dplyr)
 library(forcats)
 
 dataPath <- "C:\\Users\\vandijkm\\Dropbox\\AgClim50 scenario results"
-TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2017-05-10.csv"))
+TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2017-05-17.csv"))
 
 TOTAL <- TOTAL %>% 
   mutate(scenario = fct_relevel(scenario, 

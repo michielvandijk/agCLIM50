@@ -28,7 +28,7 @@ options(digits=2)
 
 # MAgPIE
 # Process
-MAgPIE <- read_csv(file.path(dataPath, "ModelResults\\agclim50_MAgPIE_2016-09-22.csv")) %>%
+MAgPIE <- read_csv(file.path(dataPath, "ModelResults\\agclim50_MAgPIE_2016-09-22_tf.csv")) %>%
   rename(model = Model, scenario = Scenario, region = Region, item = Item, unit = Unit, variable = Variable, year = Year, value = Value)
 
 # Check
