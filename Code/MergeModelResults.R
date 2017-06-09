@@ -97,6 +97,10 @@ check2010 <- IMAGE %>%
 MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-10-06.csv")) 
 xtabs(~item + scenario, data = MAGNET)
 
+# Correct naming error: OAP should be NRM
+MAGNET <- MAGNET %>%
+  mutate(item = ifelse(item == "OAP", "NRM", item))
+
 # CAPRI
 CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_20170510.csv")) %>%
   setNames(c("region", "variable", "item", "year", "scenario", "value")) %>%
