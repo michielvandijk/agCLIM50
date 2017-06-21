@@ -102,7 +102,7 @@ MAGNET <- MAGNET %>%
   mutate(item = ifelse(item == "OAP", "NRM", item))
 
 # CAPRI
-CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_20170510.csv")) %>%
+CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_20170619.csv")) %>%
   setNames(c("region", "variable", "item", "year", "scenario", "value")) %>%
   mutate(model = "CAPRI",
          unit = NA)
