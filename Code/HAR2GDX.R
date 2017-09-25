@@ -10,14 +10,13 @@
 #             - Adding user defined region concordance to make user defined aggregations
 
 # PACKAGES
-BasePackages <- c("readr", "readxl", "stringr", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "haven")
-lapply(BasePackages, library, character.only = TRUE)
-AdditionalPackages <- c("gdxrrw")
-lapply(AdditionalPackages, library, character.only = TRUE)
+BasePackages <-c("readr", "readxl", "stringr", "car", "zoo", "tidyr", "RColorBrewer", "plyr", "dplyr", "ggplot2", "haven")
+lapply(BasePackages,library,character.only=TRUE)
+AdditionalPackages <-c("gdxrrw")
+lapply(AdditionalPackages,library, character.only=TRUE)
 
 # load required GAMS libraries (folder user specific)
 GAMSPath <- "C:\\24.4"
-#GAMSPath <- "C:\\Program Files\\GAMS\\win64\\24.6"
 igdx(GAMSPath)
 # Make sure GDX2HAR.exe and gdxiomh.dll are located in one folder.
 
@@ -25,7 +24,7 @@ igdx(GAMSPath)
 wdPath <- "D:\\Jason\\MAGNET_PBL_SSP_PPP_NUTcor2noCCcor"
 setwd(wdPath)  
 
-# Functions
+# FUNCTIONS
 # Function to convert all har files to gdx (in the same folder)
 har2gdx.f<-function(har.file, gdx.file=""){
   system(paste("HAR2GDX.exe", har.file, gdx.file, sep=" "))
