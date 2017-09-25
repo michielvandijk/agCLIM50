@@ -100,7 +100,7 @@ MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-10-06
 xtabs(~item + scenario, data = MAGNET)
 
 # CAPRI
-CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_20160929.csv")) %>%
+CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_6Oct2016.csv")) %>%
   setNames(c("region", "variable", "item", "year", "scenario", "value")) %>%
   mutate(model = "CAPRI",
          unit = NA)
@@ -136,7 +136,7 @@ regions <- unique(GLOBIOM$region)
 CAPRI <- filter(CAPRI, region %in% regions)
 
 # Bind in one file
-TOTAL <- rbind(MAGNET, MAgPIE, GLOBIOM, IMAGE, CAPRI) %>% 
+TOTAL <- bind_rows(MAGNET, MAgPIE, GLOBIOM, IMAGE, CAPRI) %>% 
               filter(year>=2010)
 summary(TOTAL)
 
