@@ -13,11 +13,9 @@ lapply(BasePackages, library, character.only = TRUE)
 AdditionalPackages <-  c("WDI", "countrycode")
 lapply(AdditionalPackages, library, character.only = TRUE)
 
-# SET PATHS
-wdPath<-"D:\\Data\\Github\\agCLIM50"
-setwd(wdPath)
+# SET DATAPATH
+source("Code/get_dataPath.r")
 
-dataPath <- "D:\\Dropbox\\AgClim50 scenario results"
 
 # R SETTINGS
 options(scipen=99) # surpress scientific notation
@@ -30,7 +28,7 @@ options(digits=2)
 
 # MAgPIE
 # Process
-MAgPIE <- read_csv(file.path(dataPath, "ModelResults\\agclim50_MAgPIE_2016-09-22.csv")) %>%
+MAgPIE <- read_csv(file.path(dataPath, "ModelResults\\agclim50_MAgPIE_2016-09-22_tf.csv")) %>%
   rename(model = Model, scenario = Scenario, region = Region, item = Item, unit = Unit, variable = Variable, year = Year, value = Value)
 
 # Check
@@ -99,23 +97,30 @@ check2010 <- IMAGE %>%
 MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-10-06.csv")) 
 xtabs(~item + scenario, data = MAGNET)
 
+# Correct naming error: OAP should be NRM
+MAGNET <- MAGNET %>%
+  mutate(item = ifelse(item == "OAP", "NRM", item))
+
 # CAPRI
-CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_6Oct2016.csv")) %>%
+CAPRI <- read_csv(file.path(dataPath, "ModelResults\\agclim50_CAPRI_20170619.csv")) %>%
   setNames(c("region", "variable", "item", "year", "scenario", "value")) %>%
   mutate(model = "CAPRI",
          unit = NA)
-
-# CAPRI is missing base data values. It has BASELINE values. I assume this is the base for each scenario
-oldBase <- filter(CAPRI, year == 2010)
-scenarios <- unique(MAGNET$scenario)
-scenRep_f <- function(scen){
-  df <- oldBase %>% 
-    mutate(scenario = scen)
-}
-newBase <- bind_rows(lapply(scenarios, scenRep_f))
-CAPRI <- bind_rows(newBase, CAPRI) %>%
-  filter(scenario != "BASELINE")
+xtabs(~year + variable, data = CAPRI)
+ 
+# # CAPRI is missing base data values. It has BASELINE values. I assume this is the base for each scenario
+# oldBase <- filter(CAPRI, year == 2010)
+# scenarios <- unique(MAGNET$scenario)
+# scenRep_f <- function(scen){
+#   df <- oldBase %>% 
+#     mutate(scenario = scen)
+# }
+# newBase <- bind_rows(lapply(scenarios, scenRep_f))
+# CAPRI <- bind_rows(newBase, CAPRI) %>%
+#   filter(scenario != "BASELINE")
   
+# Remove CAPRI baseline
+CAPRI <- filter(CAPRI, scenario != "BASELINE")
 xtabs(~item + scenario, data = CAPRI)
 
 check2010 <- CAPRI %>%
@@ -134,6 +139,8 @@ xtabs(~item + variable, data = CAPRI)
 xtabs(~item + region, data = CAPRI)
 regions <- unique(GLOBIOM$region) 
 CAPRI <- filter(CAPRI, region %in% regions)
+xtabs(~year + variable, data = CAPRI)
+xtabs(~variable + item, data = CAPRI)
 
 # Bind in one file
 TOTAL <- bind_rows(MAGNET, MAgPIE, GLOBIOM, IMAGE, CAPRI) %>% 
@@ -169,6 +176,7 @@ check <- TOTAL %>%
 
 xtabs(~unit + model, data = TOTAL)
 xtabs(~variable + model, data = TOTAL)
+xtabs(~variable + item, data = TOTAL)
 xtabs(~region + model, data = TOTAL)
 xtabs(~scenario + model, data = TOTAL)
 

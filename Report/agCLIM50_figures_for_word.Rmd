@@ -1,7 +1,7 @@
 ---
 title: "agCLIM50 word"
 author: "Michiel van Dijk"
-date: "4 October 2016"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: word_document
 ---
 
@@ -16,8 +16,13 @@ library(ggplot2)
 library(dplyr)
 library(forcats)
 
+<<<<<<< HEAD
 dataPath <- "D:\\Dropbox\\AgClim50 scenario results"
 TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2016-10-06.csv"))
+=======
+dataPath <- "C:\\Users\\vandijkm\\Dropbox\\AgClim50 scenario results"
+TOTAL <- read.csv(file.path(dataPath, "ModelResults\\TOTAL_2017-06-09.csv"))
+>>>>>>> f728f0c2514d56985b22cde46dd1cf45ccbc8c48
 
 TOTAL <- TOTAL %>% 
   mutate(scenario = fct_relevel(scenario, 
@@ -156,6 +161,9 @@ barplot_f(TOTAL_WLD, "ECO2", "TOT")
 #barplot_f(TOTAL_WLD, "ECO2", "AGR")
 #barplot_f(TOTAL_WLD, "ECO2", "CRP")
 #barplot_f(TOTAL_WLD, "ECO2", "LSP")
+
+barplot_f(TOTAL_WLD, "EN2O", "TOT")
+barplot_f(TOTAL_WLD, "EN2O", "AGR")
 
 barplot_f(TOTAL_WLD, "ECH4", "TOT")
 barplot_f(TOTAL_WLD, "ECH4", "AGR")
