@@ -1,0 +1,101 @@
+---
+title: "New figures AgCLIM50"
+author: "Michiel van Dijk"
+date: "28 September 2017"
+output: word_document
+---
+
+
+```{r setup, include=FALSE}
+library(pacman)
+p_load(rprojroot, tidyverse)
+root <- find_root(is_rstudio_project)
+
+p_load(knitr)
+knitr::opts_chunk$set(
+  fig.width=8, fig.height=6,
+  dpi = 300,
+  echo=FALSE, warning=FALSE, message=FALSE,
+  fig.path = file.path(root,"Fig_tab_map/out-"))
+
+p_load(pander)
+panderOptions('table.alignment.default', function(df)
+    ifelse(sapply(df, is.numeric), 'right', 'left'))
+panderOptions('table.split.table', Inf)
+panderOptions('big.mark', ",")
+panderOptions('keep.trailing.zeros', TRUE)
+panderOptions('digits', 2)
+panderOptions('round', 2)
+
+source(file.path(root, "code/plots_for_ERL.R"))
+```
+
+
+
+NB: I used 0.5 as a starting point for the y-axes (index version). 1 is not possible in most cases because there is a decline resulting in values < 1 for many scenarios.
+
+
+# AGR_PROD
+```{r AGR_PROD}
+barplot2_f(TOTAL_WLD, "PROD", "AGR", ypos = 1.8, 1, 2)
+barplot3_f(TOTAL_WLD, "PROD", "AGR", ypos = 75, 0, 80)
+barplot5_f(scen_diff, "PROD", "AGR")
+```
+
+# CRP_AREA
+NB: does not include lvst area!
+```{r CRP_AREA}
+barplot2_f(TOTAL_WLD, "AREA", "CRP", ypos = 1.45, 0.5, 1.5)
+barplot3_f(TOTAL_WLD, "AREA", "CRP", ypos = 40, -15, 45)
+barplot5_f(scen_diff, "AREA", "CRP")
+```
+
+
+# XPRP_AGR
+```{r XPRP_AGR}
+barplot2_f(TOTAL_WLD, "XPRP", "AGR", ypos = 2.5, 0.5, 2.6)
+barplot3_f(TOTAL_WLD, "XPRP", "AGR", ypos = 160, -40, 170)
+barplot5_f(scen_diff, "XPRP", "AGR")
+
+
+```
+
+
+# XPRP_LSP
+```{r XPRP_LSP}
+barplot2_f(TOTAL_WLD, "XPRP", "LSP", ypos = 2.5, 0.5, 2.6)
+barplot3_f(TOTAL_WLD, "XPRP", "LSP", ypos = 160, -30, 170)
+barplot5_f(scen_diff, "XPRP", "LSP")
+
+
+
+```
+
+
+# ECH4_AGR
+NB: only CH4 emissions, NOT N2O
+```{r ECH4_AGR}
+barplot2_f(TOTAL_WLD, "ECH4", "AGR", ypos = 1.9, 0.5, 2)
+barplot3_f(TOTAL_WLD, "ECH4", "AGR", ypos = 90, -50, 100)
+barplot5_f(scen_diff, "ECH4", "AGR")
+
+```
+
+# EN20_AGR
+```{r EN20_AGR}
+barplot2_f(TOTAL_WLD, "EN2O", "AGR", ypos = 1.9, 0.5, 2)
+barplot3_f(TOTAL_WLD, "EN2O", "AGR", ypos = 90, -50, 100)
+barplot5_f(scen_diff, "EN2O", "AGR")
+```
+
+# GDP
+```{r fig_gdp}
+fig_gdp
+fig_gdp2
+```
+
+# POP
+```{r fig_pop}
+fig_pop
+fig_pop2
+```
