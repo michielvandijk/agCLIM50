@@ -39,6 +39,7 @@ NB: I used 0.5 as a starting point for the y-axes (index version). 1 is not poss
 ```{r AGR_PROD}
 barplot2_f(TOTAL_WLD, "PROD", "AGR", ypos = 1.8, 1, 2)
 barplot3_f(TOTAL_WLD, "PROD", "AGR", ypos = 75, 0, 80)
+barplot4_f(TOTAL_WLD_mean, "PROD", "AGR")
 barplot5_f(scen_diff, "PROD", "AGR")
 ```
 
@@ -47,6 +48,7 @@ NB: does not include lvst area!
 ```{r CRP_AREA}
 barplot2_f(TOTAL_WLD, "AREA", "CRP", ypos = 1.45, 0.5, 1.5)
 barplot3_f(TOTAL_WLD, "AREA", "CRP", ypos = 40, -15, 45)
+barplot4_f(TOTAL_WLD_mean, "AREA", "CRP")
 barplot5_f(scen_diff, "AREA", "CRP")
 ```
 
@@ -55,6 +57,7 @@ barplot5_f(scen_diff, "AREA", "CRP")
 ```{r XPRP_AGR}
 barplot2_f(TOTAL_WLD, "XPRP", "AGR", ypos = 2.5, 0.5, 2.6)
 barplot3_f(TOTAL_WLD, "XPRP", "AGR", ypos = 160, -40, 170)
+barplot4_f(TOTAL_WLD_mean, "XPRP", "AGR")
 barplot5_f(scen_diff, "XPRP", "AGR")
 
 
@@ -65,6 +68,7 @@ barplot5_f(scen_diff, "XPRP", "AGR")
 ```{r XPRP_LSP}
 barplot2_f(TOTAL_WLD, "XPRP", "LSP", ypos = 2.5, 0.5, 2.6)
 barplot3_f(TOTAL_WLD, "XPRP", "LSP", ypos = 160, -30, 170)
+barplot4_f(TOTAL_WLD_mean, "XPRP", "LSP")
 barplot5_f(scen_diff, "XPRP", "LSP")
 
 
@@ -77,6 +81,7 @@ NB: only CH4 emissions, NOT N2O
 ```{r ECH4_AGR}
 barplot2_f(TOTAL_WLD, "ECH4", "AGR", ypos = 1.9, 0.5, 2)
 barplot3_f(TOTAL_WLD, "ECH4", "AGR", ypos = 90, -50, 100)
+barplot4_f(TOTAL_WLD_mean, "ECH4", "AGR")
 barplot5_f(scen_diff, "ECH4", "AGR")
 
 ```
@@ -85,6 +90,7 @@ barplot5_f(scen_diff, "ECH4", "AGR")
 ```{r EN20_AGR}
 barplot2_f(TOTAL_WLD, "EN2O", "AGR", ypos = 1.9, 0.5, 2)
 barplot3_f(TOTAL_WLD, "EN2O", "AGR", ypos = 90, -50, 100)
+barplot4_f(TOTAL_WLD_mean, "EN2O", "AGR")
 barplot5_f(scen_diff, "EN2O", "AGR")
 ```
 

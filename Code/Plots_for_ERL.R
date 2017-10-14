@@ -26,7 +26,7 @@ options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e
 options(digits=2)
 
 
-## LOAD DATA
+# LOAD DATA
 # dataPath <- "D:\\Dropbox\\AgClim50 scenario results\\ModelResults"
 # TOTAL_raw <- read.csv(file.path(dataPath, "\\TOTAL_2017-06-21.csv"))
 # TOTAL <- TOTAL_raw %>%
@@ -35,7 +35,7 @@ options(digits=2)
 #                                            "SSP2_NoCC", "SSP2_CC6", "SSP2_NoCC_m", "SSP2_CC26_m",
 #                                            "SSP3_NoCC", "SSP3_CC6", "SSP3_NoCC_m", "SSP3_CC26_m"))) %>%
 #   mutate(ssp = substring(scenario, 1, 4),
-#          scenario2 = factor(substring(scenario, 6), levels = c("NoCC", "CC6", "NoCC_m", "CC26_m")),
+#          scenario2 = factor(substring(scenario, 6), levels = c("NoCC", "NoCC_m", "CC6", "CC26_m")),
 #          id = paste(item, variable, sep ="_"),
 #          diff = (index - 1)*100)
 # 
@@ -173,41 +173,41 @@ barplot3_f(TOTAL_WLD, "ECH4", "AGR", ypos = 90, -50, 100)
 barplot3_f(TOTAL_WLD, "EN2O", "AGR", ypos = 90, -50, 100)
 
 
-barplot4_f <- function(df, var, itm, ypos, y_min, y_max){
+# Mean results
+TOTAL_WLD_mean <- TOTAL_WLD %>%
+  group_by(id, ssp, scenario2) %>%
+  mutate(mean = mean(diff))
+
+df <- filter(TOTAL_WLD_mean, variable == "PROD", item == "AGR")
+
+barplot4_f <- function(df, var, itm){
   df <- filter(df, variable == var, item == itm)
-  ssp1 <- textGrob("SSP1", gp=gpar(fontsize=10))
-  ssp2 <- textGrob("SSP2", gp=gpar(fontsize=10))
-  ssp3 <- textGrob("SSP3", gp=gpar(fontsize=10))
   
-  p = ggplot(data = df, aes(x = scenario, y = nocc_net, fill = scenario2)) +
+  p = ggplot() +
     scale_fill_manual(values = c("#E69F00", "#009E73", "#F0E442", "#0072B2")) +
-    geom_bar(stat="identity", colour = "black") + 
-    facet_wrap(~model) +
-    labs( y = "2010-2050 growth (%) difference with NoCC", x = "", fill = "") +
+    geom_bar(data = filter(df, model == "GLOBIOM"), aes(x = ssp, y = mean, fill = ssp), stat="identity", colour = "black") +
+    geom_point(data = df, aes(x = ssp, y = diff, shape = model))  + 
+    labs( y = "2010-2050 growth (%)", x = "", fill = "", shape = "") +
+    facet_wrap(~scenario2, nrow = 1) +
     theme_bw(base_size = 13) +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-    geom_vline(xintercept = 3.5, linetype = "dashed") +
-    geom_vline(xintercept = 6.5, linetype = "dashed") +
-    theme(axis.title.x=element_blank(),
-          axis.text.x=element_blank(),
-          axis.ticks.x=element_blank()) +
-    annotation_custom(ssp1, xmin = 1.75, xmax = 1.75, ymin= ypos, ymax = ypos) + 
-    annotation_custom(ssp2, xmin = 4.75, xmax = 4.75, ymin= ypos, ymax = ypos) +
-    annotation_custom(ssp3, xmin = 7.75, xmax = 7.75, ymin= ypos, ymax = ypos) +
-    scale_y_continuous(expand = c(0,0)) +
-    coord_cartesian(ylim = c(y_min, y_max)) +
+    theme(axis.ticks.x=element_blank()) +
+    #scale_y_continuous(expand = c(0,0)) +
+    #coord_cartesian(ylim = c(y_min, y_max)) +
     theme(legend.position = "bottom") +
-    theme(strip.background = element_blank())
+    theme(strip.background = element_blank()) +
+    guides(fill = FALSE)
   
   p
 }    
 
-barplot4_f(nocc_net, "PROD", "AGR", ypos = 8, -12, 10)
-barplot4_f(nocc_net, "AREA", "CRP", ypos = 15, -15, 20)
-barplot4_f(nocc_net, "XPRP", "AGR", ypos = 160, -40, 170)
-barplot4_f(nocc_net, "XPRP", "LSP", ypos = 160, -30, 170)
-barplot4_f(nocc_net, "ECH4", "AGR", ypos = 90, -50, 100)
-barplot4_f(nocc_net, "EN2O", "AGR", ypos = 90, -50, 100)
+
+barplot4_f(TOTAL_WLD_mean, "PROD", "AGR")
+barplot4_f(TOTAL_WLD_mean, "AREA", "CRP")
+barplot4_f(TOTAL_WLD_mean, "XPRP", "AGR")
+barplot4_f(TOTAL_WLD_mean, "XPRP", "LSP")
+barplot4_f(TOTAL_WLD_mean, "ECH4", "AGR")
+barplot4_f(TOTAL_WLD_mean, "EN2O", "AGR")
 
 
 ### PLOTS TO SHOW DIFFERENCE BETWEEN SCENARIOS
@@ -251,14 +251,25 @@ cc26m_noccm <- TOTAL_WLD %>%
   mutate(mean = mean(net_val),
          net = "cc26m_noccm")
 
-scen_diff <- bind_rows(cc6_nocc, noccm_nocc, cc26m_noccm, cc26m_nocc) %>% 
+# CC6_m - cc26_m
+cc6_cc26m <- TOTAL_WLD %>%
+  group_by(id, model, ssp) %>%
+  mutate(net_val = diff - diff[scenario2 == "CC26_m"]) %>%
+  filter(scenario2 %in% c("CC6")) %>%
+  ungroup() %>%
+  group_by(id, ssp) %>%
+  mutate(mean = mean(net_val),
+         net = "cc6_cc26m")
+
+scen_diff <- bind_rows(cc6_nocc, noccm_nocc, cc26m_noccm, cc26m_nocc, cc6_cc26m) %>% 
   ungroup() %>%
   mutate(net = forcats::fct_relevel(net,
-                              c("cc26m_noccm",  "cc6_nocc", "noccm_nocc", "cc26m_nocc")),
+                              c("cc26m_noccm",  "cc6_nocc", "noccm_nocc", "cc6_cc26m", "cc26m_nocc")),
          net = forcats::fct_recode(net,
-           "RCP2.6" = "cc26m_noccm" ,
-           "RCP 6.0" = "cc6_nocc", 
-           "Mitigation" = "noccm_nocc",
+           "RCP2.6 approx" = "cc26m_noccm", 
+           "CC RCP 6.0" = "cc6_nocc", 
+           "Pure mitigation" = "noccm_nocc",
+           "residual cc impact" = "cc6_cc26m",
            "RCP2.6+Mitigation" = "cc26m_nocc"))
          
 
