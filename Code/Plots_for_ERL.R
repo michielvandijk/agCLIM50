@@ -251,26 +251,26 @@ cc26m_noccm <- TOTAL_WLD %>%
   mutate(mean = mean(net_val),
          net = "cc26m_noccm")
 
-# CC6_m - cc26_m
-cc6_cc26m <- TOTAL_WLD %>%
+# cc26_m-CC6_m
+cc26m_cc6 <- TOTAL_WLD %>%
   group_by(id, model, ssp) %>%
-  mutate(net_val = diff - diff[scenario2 == "CC26_m"]) %>%
-  filter(scenario2 %in% c("CC6")) %>%
+  mutate(net_val = diff - diff[scenario2 == "CC6"]) %>%
+  filter(scenario2 %in% c("CC26_m")) %>%
   ungroup() %>%
   group_by(id, ssp) %>%
   mutate(mean = mean(net_val),
-         net = "cc6_cc26m")
+         net = "cc26m_cc6")
 
-scen_diff <- bind_rows(cc6_nocc, noccm_nocc, cc26m_noccm, cc26m_nocc, cc6_cc26m) %>% 
+scen_diff <- bind_rows(cc6_nocc, noccm_nocc, cc26m_noccm, cc26m_nocc, cc26m_cc6) %>% 
   ungroup() %>%
   mutate(net = forcats::fct_relevel(net,
-                              c("cc26m_noccm",  "cc6_nocc", "noccm_nocc", "cc6_cc26m", "cc26m_nocc")),
+                              c("cc26m_noccm",  "cc6_nocc", "noccm_nocc", "cc26m_cc6", "cc26m_nocc")),
          net = forcats::fct_recode(net,
-           "RCP2.6 approx" = "cc26m_noccm", 
+           "CC RCP 2.6" = "cc26m_noccm", 
            "CC RCP 6.0" = "cc6_nocc", 
-           "Pure mitigation" = "noccm_nocc",
-           "residual cc impact" = "cc6_cc26m",
-           "RCP2.6+Mitigation" = "cc26m_nocc"))
+           "Mitigation" = "noccm_nocc",
+           "Residual CC + Mitigation" = "cc26m_cc6",
+           "Mitigation + RCP 2.6" = "cc26m_nocc"))
          
 
 
@@ -281,7 +281,7 @@ barplot5_f <- function(df, var, itm){
     scale_fill_manual(values = c("#E69F00", "#009E73", "#F0E442", "#0072B2")) +
     geom_bar(data = filter(df, model == "GLOBIOM"), aes(x = ssp, y = mean, fill = ssp), stat="identity", colour = "black") +
     geom_point(data = df, aes(x = ssp, y = net_val, shape = model))  + 
-    labs( y = "Difference with NoCc scenario (percentage point)", x = "", fill = "", shape = "") +
+    labs( y = "Percentage point", x = "", fill = "", shape = "") +
     facet_wrap(~net, nrow = 1) +
     theme_bw(base_size = 13) +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
@@ -303,6 +303,37 @@ barplot5_f(scen_diff, "ECH4", "AGR")
 barplot5_f(scen_diff, "EN2O", "AGR")
 
 
+
+# As barplot 5 but without mitigation + RCP 2.6
+barplot6_f <- function(df, var, itm){
+  df <- filter(df, variable == var, item == itm) %>%
+    filter(net != "Mitigation + RCP 2.6")
+  
+  p = ggplot() +
+    scale_fill_manual(values = c("#E69F00", "#009E73", "#F0E442", "#0072B2")) +
+    geom_bar(data = filter(df, model == "GLOBIOM"), aes(x = ssp, y = mean, fill = ssp), stat="identity", colour = "black") +
+    geom_point(data = df, aes(x = ssp, y = net_val, shape = model))  + 
+    labs( y = "percentage point", x = "", fill = "", shape = "") +
+    facet_wrap(~net, nrow = 1) +
+    theme_bw(base_size = 13) +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.ticks.x=element_blank()) +
+    #scale_y_continuous(expand = c(0,0)) +
+    #coord_cartesian(ylim = c(y_min, y_max)) +
+    theme(legend.position = "bottom") +
+    theme(strip.background = element_blank()) +
+    guides(fill = FALSE)
+  
+  p
+}    
+
+
+barplot6_f(scen_diff, "PROD", "AGR")
+barplot6_f(scen_diff, "AREA", "CRP")
+barplot6_f(scen_diff, "XPRP", "AGR")
+barplot6_f(scen_diff, "XPRP", "LSP")
+barplot6_f(scen_diff, "ECH4", "AGR")
+barplot6_f(scen_diff, "EN2O", "AGR")
 
 ### GDP AND POP PLOTS
 # gdp
