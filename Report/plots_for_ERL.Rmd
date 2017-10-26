@@ -1,7 +1,7 @@
 ---
 title: "New figures AgCLIM50"
 author: "Michiel van Dijk"
-date: "23 October 2017"
+date: "24 October 2017"
 output: word_document
 ---
 
@@ -55,6 +55,17 @@ barplot6_f(scen_diff, "AREA", "CRP")
 ```
 
 
+# LSP_AREA
+NB: does not include lvst area!
+```{r LSP_AREA}
+barplot2_f(TOTAL_WLD, "AREA", "LSP", ypos = 1.45, 0.5, 1.5)
+barplot3_f(TOTAL_WLD, "AREA", "LSP", ypos = 20, -25, 25)
+barplot4_f(TOTAL_WLD_mean, "AREA", "LSP")
+barplot5_f(scen_diff, "AREA", "LSP")
+barplot6_f(scen_diff, "AREA", "LSP")
+```
+
+
 # XPRP_AGR
 ```{r XPRP_AGR}
 barplot2_f(TOTAL_WLD, "XPRP", "AGR", ypos = 2.5, 0.5, 2.6)
@@ -92,6 +103,15 @@ barplot3_f(TOTAL_WLD, "EN2O", "AGR", ypos = 90, -50, 100)
 barplot4_f(TOTAL_WLD_mean, "EN2O", "AGR")
 barplot5_f(scen_diff, "EN2O", "AGR")
 barplot6_f(scen_diff, "EN2O", "AGR")
+```
+
+# EMIS_AGR
+```{r EMIS_AGR}
+barplot2_f(TOTAL_WLD, "EMIS", "AGR", ypos = 1.9, 0.5, 2)
+barplot3_f(TOTAL_WLD, "EMIS", "AGR", ypos = 90, -50, 100)
+barplot4_f(TOTAL_WLD_mean, "EMIS", "AGR")
+barplot5_f(scen_diff, "EMIS", "AGR")
+barplot6_f(scen_diff, "EMIS", "AGR")
 ```
 
 # GDP

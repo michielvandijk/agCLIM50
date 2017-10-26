@@ -27,26 +27,26 @@ options(digits=2)
 
 
 # LOAD DATA
-# dataPath <- "D:\\Dropbox\\AgClim50 scenario results\\ModelResults"
-# TOTAL_raw <- read.csv(file.path(dataPath, "\\TOTAL_2017-06-21.csv"))
-# TOTAL <- TOTAL_raw %>%
-#   mutate(scenario = forcats::fct_relevel(scenario,
-#                                          c("SSP1_NoCC", "SSP1_CC6", "SSP1_NoCC_m", "SSP1_CC26_m",
-#                                            "SSP2_NoCC", "SSP2_CC6", "SSP2_NoCC_m", "SSP2_CC26_m",
-#                                            "SSP3_NoCC", "SSP3_CC6", "SSP3_NoCC_m", "SSP3_CC26_m"))) %>%
-#   mutate(ssp = substring(scenario, 1, 4),
-#          scenario2 = factor(substring(scenario, 6), levels = c("NoCC", "NoCC_m", "CC6", "CC26_m")),
-#          id = paste(item, variable, sep ="_"),
-#          diff = (index - 1)*100)
-# 
-# # filter out fm t/ha which is only presented by GLOBIOM
-# TOTAL <- filter(TOTAL, !(unit == "fm t/ha" & model == "GLOBIOM"))
-# 
-# # Create database for plotting
-# sel <- c("AGR_PROD", "CRP_AREA", "AGR_XPRP", "LSP_XPRP", "AGR_ECH4", "AGR_EN2O", "TOT_GDPT", "TOT_POPT")
-# TOTAL <- filter(TOTAL, year == 2050, id %in% sel)
-# xtabs(~variable + item, data = TOTAL)
-# saveRDS(TOTAL, "Cache/TOTAL.rds")
+dataPath <- "D:\\Dropbox\\AgClim50 scenario results\\ModelResults"
+TOTAL_raw <- read.csv(file.path(dataPath, "\\TOTAL_2017-06-21.csv"))
+TOTAL <- TOTAL_raw %>%
+  mutate(scenario = forcats::fct_relevel(scenario,
+                                         c("SSP1_NoCC", "SSP1_CC6", "SSP1_NoCC_m", "SSP1_CC26_m",
+                                           "SSP2_NoCC", "SSP2_CC6", "SSP2_NoCC_m", "SSP2_CC26_m",
+                                           "SSP3_NoCC", "SSP3_CC6", "SSP3_NoCC_m", "SSP3_CC26_m"))) %>%
+  mutate(ssp = substring(scenario, 1, 4),
+         scenario2 = factor(substring(scenario, 6), levels = c("NoCC", "NoCC_m", "CC6", "CC26_m")),
+         id = paste(item, variable, sep ="_"),
+         diff = (index - 1)*100)
+
+# filter out fm t/ha which is only presented by GLOBIOM
+TOTAL <- filter(TOTAL, !(unit == "fm t/ha" & model == "GLOBIOM"))
+
+# Create database for plotting
+sel <- c("AGR_PROD", "CRP_AREA", "AGR_XPRP", "LSP_XPRP", "AGR_ECH4", "AGR_EN2O", "TOT_GDPT", "TOT_POPT", "LSP_AREA", "AGR_EMIS")
+TOTAL <- filter(TOTAL, year == 2050, id %in% sel)
+xtabs(~variable + item, data = TOTAL)
+saveRDS(TOTAL, "Cache/TOTAL.rds")
 TOTAL <- readRDS("Cache/TOTAL.rds")
 
 # Create database for results
@@ -130,6 +130,7 @@ barplot2_f <- function(df, var, itm, ypos, y_min, y_max){
 
 barplot2_f(TOTAL_WLD, "PROD", "AGR", ypos = 1.75, 0.5, 1.85)
 barplot2_f(TOTAL_WLD, "AREA", "CRP", ypos = 1.45, 0.5, 1.5)
+barplot2_f(TOTAL_WLD, "AREA", "LSP", ypos = 1.45, 0.5, 1.5)
 barplot2_f(TOTAL_WLD, "XPRP", "AGR", ypos = 2.5, 0.5, 2.6)
 barplot2_f(TOTAL_WLD, "XPRP", "LSP", ypos = 2.5, 0.5, 2.6)
 barplot2_f(TOTAL_WLD, "ECH4", "AGR", ypos = 1.9, 0.5, 2)
@@ -167,6 +168,7 @@ barplot3_f <- function(df, var, itm, ypos, y_min, y_max){
 
 barplot3_f(TOTAL_WLD, "PROD", "AGR", ypos = 75, 0, 80)
 barplot3_f(TOTAL_WLD, "AREA", "CRP", ypos = 40, -15, 45)
+barplot3_f(TOTAL_WLD, "AREA", "LSP", ypos = 20, -15, 25)
 barplot3_f(TOTAL_WLD, "XPRP", "AGR", ypos = 160, -40, 170)
 barplot3_f(TOTAL_WLD, "XPRP", "LSP", ypos = 160, -30, 170)
 barplot3_f(TOTAL_WLD, "ECH4", "AGR", ypos = 90, -50, 100)
@@ -204,6 +206,7 @@ barplot4_f <- function(df, var, itm){
 
 barplot4_f(TOTAL_WLD_mean, "PROD", "AGR")
 barplot4_f(TOTAL_WLD_mean, "AREA", "CRP")
+barplot4_f(TOTAL_WLD_mean, "AREA", "LSP")
 barplot4_f(TOTAL_WLD_mean, "XPRP", "AGR")
 barplot4_f(TOTAL_WLD_mean, "XPRP", "LSP")
 barplot4_f(TOTAL_WLD_mean, "ECH4", "AGR")
@@ -297,6 +300,7 @@ barplot5_f <- function(df, var, itm){
 
 barplot5_f(scen_diff, "PROD", "AGR")
 barplot5_f(scen_diff, "AREA", "CRP")
+barplot5_f(scen_diff, "AREA", "LSP")
 barplot5_f(scen_diff, "XPRP", "AGR")
 barplot5_f(scen_diff, "XPRP", "LSP")
 barplot5_f(scen_diff, "ECH4", "AGR")
@@ -330,10 +334,14 @@ barplot6_f <- function(df, var, itm){
 
 barplot6_f(scen_diff, "PROD", "AGR")
 barplot6_f(scen_diff, "AREA", "CRP")
+barplot6_f(scen_diff, "AREA", "LSP")
 barplot6_f(scen_diff, "XPRP", "AGR")
 barplot6_f(scen_diff, "XPRP", "LSP")
 barplot6_f(scen_diff, "ECH4", "AGR")
 barplot6_f(scen_diff, "EN2O", "AGR")
+barplot6_f(scen_diff, "EMIS", "AGR")
+
+
 
 ### GDP AND POP PLOTS
 # gdp
