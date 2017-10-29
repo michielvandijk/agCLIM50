@@ -14,7 +14,7 @@
 
 # Michiel WEcR
 if(Sys.info()["user"] == "dijk158") {
-  dataPath <- "D:\\R\\agCLIM50"}
+  dataPath <- "D:\\Dropbox\\agCLIM50 scenario results"}
 
 # Michiel IIASA
 if(Sys.info()["user"] == "vandijkm") {

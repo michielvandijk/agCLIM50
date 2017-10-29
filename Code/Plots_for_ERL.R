@@ -28,7 +28,7 @@ options(digits=2)
 
 # LOAD DATA
 dataPath <- "D:\\Dropbox\\AgClim50 scenario results\\ModelResults"
-TOTAL_raw <- read.csv(file.path(dataPath, "\\TOTAL_2017-06-21.csv"))
+TOTAL_raw <- read.csv(file.path(dataPath, "\\TOTAL_2017-10-29.csv"))
 TOTAL <- TOTAL_raw %>%
   mutate(scenario = forcats::fct_relevel(scenario,
                                          c("SSP1_NoCC", "SSP1_CC6", "SSP1_NoCC_m", "SSP1_CC26_m",
