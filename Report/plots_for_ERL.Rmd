@@ -1,7 +1,7 @@
 ---
 title: "New figures AgCLIM50"
 author: "Michiel van Dijk"
-date: "29 October 2017"
+date: "31 October 2017"
 output: word_document
 ---
 
@@ -31,9 +31,7 @@ source(file.path(root, "code/plots_for_ERL.R"))
 ```
 
 
-
-NB: I used 0.5 as a starting point for the y-axes (index version). 1 is not possible in most cases because there is a decline resulting in values < 1 for many scenarios.
-
+NB: WITH UPDATED DATA FROM IMAGE!!!!!!!!!
 
 # AGR_PROD
 ```{r AGR_PROD}

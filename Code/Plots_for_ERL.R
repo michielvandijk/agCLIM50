@@ -28,7 +28,7 @@ options(digits=2)
 
 # LOAD DATA
 dataPath <- "D:\\Dropbox\\AgClim50 scenario results\\ModelResults"
-TOTAL_raw <- read.csv(file.path(dataPath, "\\TOTAL_2017-10-29.csv"))
+TOTAL_raw <- read.csv(file.path(dataPath, "\\TOTAL_2017-10-31.csv"))
 TOTAL <- TOTAL_raw %>%
   mutate(scenario = forcats::fct_relevel(scenario,
                                          c("SSP1_NoCC", "SSP1_CC6", "SSP1_NoCC_m", "SSP1_CC26_m",
@@ -305,13 +305,13 @@ barplot5_f(scen_diff, "XPRP", "AGR")
 barplot5_f(scen_diff, "XPRP", "LSP")
 barplot5_f(scen_diff, "ECH4", "AGR")
 barplot5_f(scen_diff, "EN2O", "AGR")
-
+barplot5_f(scen_diff, "EMIS", "AGR")
 
 
 # As barplot 5 but without mitigation + RCP 2.6
 barplot6_f <- function(df, var, itm){
   df <- filter(df, variable == var, item == itm) %>%
-    filter(net != "Mitigation + RCP 2.6")
+    filter(net != "Residual CC + Mitigation")
   
   p = ggplot() +
     scale_fill_manual(values = c("#E69F00", "#009E73", "#F0E442", "#0072B2")) +

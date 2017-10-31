@@ -80,7 +80,7 @@ xtabs(~item + variable, data = GLOBIOM)
 # IMAGE
 # Process
 # NB: new version (old was AGCLIM50_IMAGE_23092016.csv)
-IMAGE <- read_csv(file.path(dataPath, "ModelResults\\AGCLIM50_IMAGE_29102017.csv")) %>%
+IMAGE <- read_csv(file.path(dataPath, "ModelResults\\AGCLIM50_IMAGE_31102017.csv")) %>%
   rename(model = Model, scenario = Scenario, region = Region, item = Item, unit = Unit, variable = Variable, year = Year, value = Value) %>%
   mutate(year = as.numeric(year),
          scenario = gsub("M", "m", scenario)) # replace _M by _m
