@@ -312,6 +312,7 @@ barplot5_f(scen_diff, "EMIS", "AGR")
 
 
 # As barplot 5 but without mitigation + RCP 2.6
+# FINAL ONES USED IN ERL PAPER!!
 barplot6_f <- function(df, var, itm){
   df <- filter(df, variable == var, item == itm) %>%
     filter(net != "Residual CC + Mitigation")
