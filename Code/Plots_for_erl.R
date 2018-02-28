@@ -41,7 +41,7 @@ TOTAL <- TOTAL_raw %>%
                                            "SSP2_NoCC", "SSP2_CC6", "SSP2_NoCC_m", "SSP2_CC26_m",
                                            "SSP3_NoCC", "SSP3_CC6", "SSP3_NoCC_m", "SSP3_CC26_m", "SSP2_CC26_b"))) %>%
   mutate(ssp = substring(scenario, 1, 4),
-         scenario2 = factor(substring(scenario, 6), levels = c("NoCC", "NoCC_m", "CC6", "CC26_m")),
+         scenario2 = factor(substring(scenario, 6), levels = c("NoCC", "NoCC_m", "CC6", "CC26_m", "CC26_b")),
          id = paste(item, variable, sep ="_"),
          diff = (index - 1)*100)
 
@@ -56,7 +56,7 @@ xtabs(~variable + item, data = TOTAL)
 
 # Create database for results
 TOTAL_WLD <- filter(TOTAL, region == "WLD") %>%
-  filter(scenario != "SSP2_CC26_b")
+  filter(!scenario %in% c("SSP1_CC26_b", "SSP2_CC26_b", "SSP3_CC26_b"))
 
 # Create database for difference with NOCC
 nocc_net <- TOTAL_WLD %>%
@@ -350,18 +350,47 @@ barplot6_f(scen_diff, "EMIS", "AGR")
 
 
 ### RECREATE XPRP PLOTS USING RCP2p6 SCENARIO FOR MAGNET
-MAGNET_rcp2p6 <- filter(TOTAL, region == "WLD") %>%
-  filter(model == "MAGNET")
-
-# CC26 - NoCC
-cc26_nocc <- MAGNET_rcp2p6 %>%
-  group_by(id, model, ssp) %>%
-  mutate(net_val = diff - diff[scenario2 == "NoCC"]) %>%
-  filter(scenario2 %in% c("CC26")) %>%
+# Select new MAGNET data
+cc26m_noccm_upd <-  bind_rows(
+  TOTAL %>%
+    filter(region == "WLD") %>%
+    filter(model == "MAGNET", scenario2 %in% c("CC26_b", "NoCC")) %>%
+    group_by(id, model, ssp) %>%
+    mutate(net_val = diff - diff[scenario2 == "NoCC"]) %>%
+    filter(scenario2 %in% c("CC26_b")),
+  TOTAL_WLD %>%
+    group_by(id, model, ssp) %>%
+    mutate(net_val = diff - diff[scenario2 == "NoCC_m"]) %>%
+    filter(scenario2 %in% c("CC26_m"), model != "MAGNET")) %>%
   ungroup() %>%
-  group_by(id, ssp) %>%
-  mutate(mean = mean(net_val),
-         net = "cc26m_noccm")
+    group_by(id, ssp) %>%
+    mutate(mean = mean(net_val),
+           net = "cc26m_noccmx")
+
+
+df <- 
+  
+
+# Combine and plot
+rcp2p6_check <- bind_rows(cc26m_noccm_upd, cc26m_noccm) %>%
+  filter(variable == "XPRP", item == "AGR")
+
+ggplot() +
+  scale_fill_manual(values = c("#E69F00", "#009E73", "#F0E442", "#0072B2")) +
+  geom_bar(data = filter(rcp2p6_check, model == "GLOBIOM"), aes(x = ssp, y = mean, fill = ssp), stat="identity", colour = "black") +
+  geom_point(data = rcp2p6_check, aes(x = ssp, y = net_val, shape = model))  + 
+  labs( y = "percentage point", x = "", fill = "", shape = "") +
+  facet_wrap(~net, nrow = 1) +
+  theme_bw(base_size = 13) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  #scale_y_continuous(expand = c(0,0)) +
+  #coord_cartesian(ylim = c(y_min, y_max)) +
+  theme(legend.position = "bottom") +
+  theme(strip.background = element_blank()) +
+  guides(fill = FALSE)
+
+p
 
 
 
