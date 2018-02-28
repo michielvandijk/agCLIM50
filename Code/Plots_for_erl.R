@@ -39,30 +39,24 @@ TOTAL <- TOTAL_raw %>%
   mutate(scenario = forcats::fct_relevel(scenario,
                                          c("SSP1_NoCC", "SSP1_CC6", "SSP1_NoCC_m", "SSP1_CC26_m",
                                            "SSP2_NoCC", "SSP2_CC6", "SSP2_NoCC_m", "SSP2_CC26_m",
-                                           "SSP3_NoCC", "SSP3_CC6", "SSP3_NoCC_m", "SSP3_CC26_m"))) %>%
+                                           "SSP3_NoCC", "SSP3_CC6", "SSP3_NoCC_m", "SSP3_CC26_m", "SSP2_CC26_b"))) %>%
   mutate(ssp = substring(scenario, 1, 4),
          scenario2 = factor(substring(scenario, 6), levels = c("NoCC", "NoCC_m", "CC6", "CC26_m")),
          id = paste(item, variable, sep ="_"),
          diff = (index - 1)*100)
 
-### FILTER OUT MAGNET ADDITIONAL SCENARIO 
-TOTAL_plus <- TOTAL
-
-TOTAL <- TOTAL %>%
-  filter(scenario != "SSP2_CC26_b")
-
 # filter out fm t/ha which is only presented by GLOBIOM
 TOTAL <- filter(TOTAL, !(unit == "fm t/ha" & model == "GLOBIOM"))
+
 
 # Create database for plotting
 sel <- c("AGR_PROD", "CRP_AREA", "AGR_XPRP", "LSP_XPRP", "AGR_ECH4", "AGR_EN2O", "TOT_GDPT", "TOT_POPT", "LSP_AREA", "AGR_EMIS")
 TOTAL <- filter(TOTAL, year == 2050, id %in% sel)
 xtabs(~variable + item, data = TOTAL)
-saveRDS(TOTAL, "Cache/TOTAL.rds")
-TOTAL <- readRDS("Cache/TOTAL.rds")
 
 # Create database for results
-TOTAL_WLD <- filter(TOTAL, region == "WLD")
+TOTAL_WLD <- filter(TOTAL, region == "WLD") %>%
+  filter(scenario != "SSP2_CC26_b")
 
 # Create database for difference with NOCC
 nocc_net <- TOTAL_WLD %>%
@@ -354,8 +348,22 @@ barplot6_f(scen_diff, "ECH4", "AGR")
 barplot6_f(scen_diff, "EN2O", "AGR")
 barplot6_f(scen_diff, "EMIS", "AGR")
 
+
 ### RECREATE XPRP PLOTS USING RCP2p6 SCENARIO FOR MAGNET
-MAGNET_rcp2p6 <- 
+MAGNET_rcp2p6 <- filter(TOTAL, region == "WLD") %>%
+  filter(model == "MAGNET")
+
+# CC26 - NoCC
+cc26_nocc <- MAGNET_rcp2p6 %>%
+  group_by(id, model, ssp) %>%
+  mutate(net_val = diff - diff[scenario2 == "NoCC"]) %>%
+  filter(scenario2 %in% c("CC26")) %>%
+  ungroup() %>%
+  group_by(id, ssp) %>%
+  mutate(mean = mean(net_val),
+         net = "cc26m_noccm")
+
+
 
 
 ### GDP AND POP PLOTS

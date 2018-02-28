@@ -97,7 +97,12 @@ check2010 <- IMAGE %>%
 
 # MAGNET
 MAGNET <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_2016-10-06.csv")) 
+MAGNET_rcp2p6 <- read_csv(file.path(dataPath, "ModelResults\\agCLIM50_MAGNET_rcp2p6_2018-02-28.csv")) 
 xtabs(~item + scenario, data = MAGNET)
+xtabs(~item + scenario, data = MAGNET_rcp2p6)
+
+# Combine
+MAGNET <- bind_rows(MAGNET, MAGNET_rcp2p6)
 
 # Correct naming error: OAP should be NRM
 MAGNET <- MAGNET %>%
