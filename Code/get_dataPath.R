@@ -14,12 +14,16 @@
 
 # Michiel WEcR
 if(Sys.info()["user"] == "dijk158") {
-  dataPath <- "D:\\Dropbox\\agCLIM50 scenario results"}
+  dataPath <- "C:\\Users\\dijk158\\Dropbox\\AgClim50 scenario results"}
+
+if(Sys.info()["user"] == "dijk158") {
+  GAMSPath <- "C:\\Program Files\\GAMS\\win64\\24.6"}
+
+
 
 # Michiel IIASA
 if(Sys.info()["user"] == "vandijkm") {
   dataPath <- "C:/Users/vandijkm/Dropbox/AgClim50 scenario results"}
 
-# Anybody else:
-if(Sys.info()["user"] == "") {
-  dataPath <- ""}
+if(Sys.info()["user"] == "vandijkm") {
+  GAMSPath <- "C:/GAMS/win64/24.9"}

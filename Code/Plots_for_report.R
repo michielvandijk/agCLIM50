@@ -26,9 +26,12 @@ options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e
 options(digits=2)
 
 
+### SET DATAPATH
+source(file.path(root, "code/get_dataPath.r"))
+
+
 # LOAD DATA
-dataPath <- "D:\\Dropbox\\AgClim50 scenario results\\ModelResults"
-TOTAL_raw <- read.csv(file.path(dataPath, "\\TOTAL_2017-10-31.csv"))
+TOTAL_raw <- read.csv(file.path(dataPath, "ModelResults/TOTAL_2017-10-31.csv"))
 TOTAL <- TOTAL_raw %>%
   mutate(scenario = forcats::fct_relevel(scenario,
                                          c("SSP1_NoCC", "SSP1_CC6", "SSP1_NoCC_m", "SSP1_CC26_m",
@@ -309,6 +312,7 @@ barplot5_f(scen_diff, "EMIS", "AGR")
 
 
 # As barplot 5 but without mitigation + RCP 2.6
+# FINAL ONES USED IN ERL PAPER!!
 barplot6_f <- function(df, var, itm){
   df <- filter(df, variable == var, item == itm) %>%
     filter(net != "Residual CC + Mitigation")
