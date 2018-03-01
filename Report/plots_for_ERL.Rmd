@@ -31,8 +31,6 @@ source(file.path(root, "code/plots_for_ERL.R"))
 ```
 
 
-NB: WITH UPDATED DATA FROM IMAGE!!!!!!!!!
-
 # AGR_PROD
 ```{r AGR_PROD}
 barplot2_f(TOTAL_WLD, "PROD", "AGR", ypos = 1.8, 1, 2)
@@ -40,6 +38,7 @@ barplot3_f(TOTAL_WLD, "PROD", "AGR", ypos = 75, 0, 80)
 barplot4_f(TOTAL_WLD_mean, "PROD", "AGR")
 barplot5_f(scen_diff, "PROD", "AGR")
 barplot6_f(scen_diff, "PROD", "AGR")
+barplot6_f(scen_diff_upd, "PROD", "AGR")
 ```
 
 # CRP_AREA
@@ -50,6 +49,8 @@ barplot3_f(TOTAL_WLD, "AREA", "CRP", ypos = 40, -15, 45)
 barplot4_f(TOTAL_WLD_mean, "AREA", "CRP")
 barplot5_f(scen_diff, "AREA", "CRP")
 barplot6_f(scen_diff, "AREA", "CRP")
+barplot6_f(scen_diff_upd, "AREA", "CRP")
+
 ```
 
 
@@ -61,6 +62,7 @@ barplot3_f(TOTAL_WLD, "AREA", "LSP", ypos = 20, -25, 25)
 barplot4_f(TOTAL_WLD_mean, "AREA", "LSP")
 barplot5_f(scen_diff, "AREA", "LSP")
 barplot6_f(scen_diff, "AREA", "LSP")
+barplot6_f(scen_diff_upd, "AREA", "LSP")
 ```
 
 
@@ -71,6 +73,7 @@ barplot3_f(TOTAL_WLD, "XPRP", "AGR", ypos = 160, -40, 170)
 barplot4_f(TOTAL_WLD_mean, "XPRP", "AGR")
 barplot5_f(scen_diff, "XPRP", "AGR")
 barplot6_f(scen_diff, "XPRP", "AGR")
+barplot6_f(scen_diff_upd, "XPRP", "AGR")
 ```
 
 
@@ -81,6 +84,7 @@ barplot3_f(TOTAL_WLD, "XPRP", "LSP", ypos = 160, -30, 170)
 barplot4_f(TOTAL_WLD_mean, "XPRP", "LSP")
 barplot5_f(scen_diff, "XPRP", "LSP")
 barplot6_f(scen_diff, "XPRP", "LSP")
+barplot6_f(scen_diff_upd, "XPRP", "LSP")
 ```
 
 
@@ -92,6 +96,7 @@ barplot3_f(TOTAL_WLD, "ECH4", "AGR", ypos = 90, -50, 100)
 barplot4_f(TOTAL_WLD_mean, "ECH4", "AGR")
 barplot5_f(scen_diff, "ECH4", "AGR")
 barplot6_f(scen_diff, "ECH4", "AGR")
+barplot6_f(scen_diff_upd, "ECH4", "AGR")
 ```
 
 # EN20_AGR
@@ -101,6 +106,7 @@ barplot3_f(TOTAL_WLD, "EN2O", "AGR", ypos = 90, -50, 100)
 barplot4_f(TOTAL_WLD_mean, "EN2O", "AGR")
 barplot5_f(scen_diff, "EN2O", "AGR")
 barplot6_f(scen_diff, "EN2O", "AGR")
+barplot6_f(scen_diff_upd, "EN2O", "AGR")
 ```
 
 # EMIS_AGR
@@ -110,6 +116,7 @@ barplot3_f(TOTAL_WLD, "EMIS", "AGR", ypos = 90, -50, 100)
 barplot4_f(TOTAL_WLD_mean, "EMIS", "AGR")
 barplot5_f(scen_diff, "EMIS", "AGR")
 barplot6_f(scen_diff, "EMIS", "AGR")
+barplot6_f(scen_diff_upd, "EMIS", "AGR")
 ```
 
 # GDP

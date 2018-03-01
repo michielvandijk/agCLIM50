@@ -65,45 +65,45 @@ nocc_net <- TOTAL_WLD %>%
   filter(scenario2 != "NoCC")
 
 # BAR GRAPHS for WLD
-# Create colours
-red <- colorRampPalette(c("orange", "darkred"))
-blue <- colorRampPalette(c("skyblue", "darkblue"))
-green <- colorRampPalette(c("greenyellow", "darkgreen"))
-colour <- c(green(4), blue(4), red(4))
-names(colour) <- levels(TOTAL_WLD$scenario)
-
-
-# Function to plot bar graph
-barplot_f <- function(df, var, itm){
-  df <- filter(df, variable == var, item == itm)
-  title <- paste(var, itm, sep = "_")
-  ssp1 <- textGrob("SSP1", gp=gpar(fontsize=11))
-  ssp2 <- textGrob("SSP2", gp=gpar(fontsize=11))
-  ssp3 <- textGrob("SSP3", gp=gpar(fontsize=11))
-  
-  p = ggplot(data = df, aes(x = scenario, y = index, fill = scenario)) +
-    scale_fill_manual(values = colour) +
-    geom_bar(stat="identity", colour = "black") + 
-    facet_wrap(~model) +
-    ggtitle(title) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-    ylab("Index (2010=1)") +
-    theme_bw() +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-    geom_vline(xintercept = 4.5, linetype = "dashed") +
-    geom_vline(xintercept = 8.5, linetype = "dashed") +
-    theme(axis.title.x=element_blank(),
-          axis.text.x=element_blank(),
-          axis.ticks.x=element_blank()) +
-    annotation_custom(ssp1, xmin = 2.25, xmax = 2.25, ymin= 2, ymax = 2) + 
-    annotation_custom(ssp2, xmin = 6.25, xmax = 6.25, ymin= 2, ymax = 2) +
-    annotation_custom(ssp3, xmin = 10.25, xmax = 10.25, ymin= 2, ymax = 2) +
-    scale_y_continuous(expand = c(0,0)) +
-    theme(legend.position = "bottom") +
-    guides(fill = guide_legend(nrow = 2)) +
-    theme(plot.margin = unit(c(1,1,3,1), "cm"))
-  p
-}    
+# # Create colours
+# red <- colorRampPalette(c("orange", "darkred"))
+# blue <- colorRampPalette(c("skyblue", "darkblue"))
+# green <- colorRampPalette(c("greenyellow", "darkgreen"))
+# colour <- c(green(4), blue(4), red(4))
+# names(colour) <- levels(TOTAL_WLD$scenario)
+# 
+# 
+# # Function to plot bar graph
+# barplot_f <- function(df, var, itm){
+#   df <- filter(df, variable == var, item == itm)
+#   title <- paste(var, itm, sep = "_")
+#   ssp1 <- textGrob("SSP1", gp=gpar(fontsize=11))
+#   ssp2 <- textGrob("SSP2", gp=gpar(fontsize=11))
+#   ssp3 <- textGrob("SSP3", gp=gpar(fontsize=11))
+#   
+#   p = ggplot(data = df, aes(x = scenario, y = index, fill = scenario)) +
+#     scale_fill_manual(values = colour) +
+#     geom_bar(stat="identity", colour = "black") + 
+#     facet_wrap(~model) +
+#     ggtitle(title) +
+#     theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+#     ylab("Index (2010=1)") +
+#     theme_bw() +
+#     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+#     geom_vline(xintercept = 4.5, linetype = "dashed") +
+#     geom_vline(xintercept = 8.5, linetype = "dashed") +
+#     theme(axis.title.x=element_blank(),
+#           axis.text.x=element_blank(),
+#           axis.ticks.x=element_blank()) +
+#     annotation_custom(ssp1, xmin = 2.25, xmax = 2.25, ymin= 2, ymax = 2) + 
+#     annotation_custom(ssp2, xmin = 6.25, xmax = 6.25, ymin= 2, ymax = 2) +
+#     annotation_custom(ssp3, xmin = 10.25, xmax = 10.25, ymin= 2, ymax = 2) +
+#     scale_y_continuous(expand = c(0,0)) +
+#     theme(legend.position = "bottom") +
+#     guides(fill = guide_legend(nrow = 2)) +
+#     theme(plot.margin = unit(c(1,1,3,1), "cm"))
+#   p
+# }    
 
 barplot2_f <- function(df, var, itm, ypos, y_min, y_max){
   df <- filter(df, variable == var, item == itm)
@@ -315,7 +315,7 @@ barplot5_f(scen_diff, "EMIS", "AGR")
 
 
 # As barplot 5 but without mitigation + RCP 2.6
-# FINAL ONES USED IN ERL PAPER!!
+# USED IN FIRST SUBMISSION
 barplot6_f <- function(df, var, itm){
   df <- filter(df, variable == var, item == itm) %>%
     filter(net != "Residual CC + Mitigation")
@@ -365,13 +365,10 @@ cc26m_noccm_upd <-  bind_rows(
   ungroup() %>%
     group_by(id, ssp) %>%
     mutate(mean = mean(net_val),
-           net = "cc26m_noccmx")
+           net = "cc26m_noccm_upd")
 
 
-df <- 
-  
-
-# Combine and plot
+# Compare difference for XPRP_AGR
 rcp2p6_check <- bind_rows(cc26m_noccm_upd, cc26m_noccm) %>%
   filter(variable == "XPRP", item == "AGR")
 
@@ -390,8 +387,28 @@ ggplot() +
   theme(strip.background = element_blank()) +
   guides(fill = FALSE)
 
-p
+# Replace MAGNET data
+scen_diff_upd <- bind_rows(cc6_nocc, noccm_nocc, cc26m_noccm_upd, cc26m_nocc, cc26m_cc6) %>% 
+  ungroup() %>%
+  mutate(net = forcats::fct_relevel(net,
+                                    c("cc26m_noccm_upd",  "cc6_nocc", "noccm_nocc", "cc26m_cc6", "cc26m_nocc")),
+         net = forcats::fct_recode(net,
+                                   "CC RCP 2.6" = "cc26m_noccm_upd", 
+                                   "CC RCP 6.0" = "cc6_nocc", 
+                                   "Mitigation" = "noccm_nocc",
+                                   "Residual CC + Mitigation" = "cc26m_cc6",
+                                   "Mitigation + RCP 2.6" = "cc26m_nocc"))
 
+# new plots
+
+barplot6_f(scen_diff_upd, "PROD", "AGR")
+barplot6_f(scen_diff_upd, "AREA", "CRP")
+barplot6_f(scen_diff_upd, "AREA", "LSP")
+barplot6_f(scen_diff_upd, "XPRP", "AGR")
+barplot6_f(scen_diff_upd, "XPRP", "LSP")
+barplot6_f(scen_diff_upd, "ECH4", "AGR")
+barplot6_f(scen_diff_upd, "EN2O", "AGR")
+barplot6_f(scen_diff_upd, "EMIS", "AGR")
 
 
 
