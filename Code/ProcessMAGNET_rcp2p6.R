@@ -36,7 +36,7 @@ options("stringsAsFactors"=FALSE) # ensures that characterdata that is loaded (e
 options(digits=4)
 
 ### Define scenarios, periods, path, project, sourcefile and 
-scenarios<-c("SSP2_CC26_b")
+scenarios<-c("SSP1_CC26_b", "SSP2_CC26_b", "SSP3_CC26_b")
 periods<-c("2007-2010", "2010-2020", "2020-2030", "2030-2050")
 
 
@@ -535,14 +535,6 @@ MAGNET_tot$variable[MAGNET_tot$variable == "YEXO" & MAGNET_tot$sector %in% c("LS
 
 # Change sector into item
 MAGNET_tot <- rename(MAGNET_tot, item = sector)
-
-# Rename scenarios in line with agCLIM50
-scenMAGNET2agCLIM50 <- read_csv(file.path(projectPath, "Mappings/scenMAGNET2agCLIM50.csv")) %>%
-  rename(scenario = scenMAGNET)
-
-MAGNET_tot <- left_join(MAGNET_tot, scenMAGNET2agCLIM50) %>%
-  select(-scenario) %>%
-  rename(scenario = scenagCLIM50)
 
 # Remove values in current values
 xtabs(~variable + scenario, data = MAGNET_tot)

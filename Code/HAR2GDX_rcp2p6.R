@@ -48,7 +48,7 @@ dataResultPath <- "./4_MAGNET/Results"
 if (!file.exists(dataResultPath)) dir.create(dataResultPath) 
 
 # Define scenarios, periods and project
-scenarios<-c("SSP2_CC26_b")
+scenarios<-c("SSP1_CC26_b", "SSP2_CC26_b", "SSP3_CC26_b")
 periods<-c("2007-2010", "2010-2020", "2020-2030", "2030-2050")
 
 # Create lookup table for update files
