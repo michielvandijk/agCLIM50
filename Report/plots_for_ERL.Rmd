@@ -37,7 +37,7 @@ barplot2_f(TOTAL_WLD, "PROD", "AGR", ypos = 1.8, 1, 2)
 barplot3_f(TOTAL_WLD, "PROD", "AGR", ypos = 75, 0, 80)
 barplot4_f(TOTAL_WLD_mean, "PROD", "AGR")
 barplot5_f(scen_diff, "PROD", "AGR")
-barplot6_f(scen_diff, "PROD", "AGR")
+barplot6_f(scen_diff, "PROD", "AGR") # Fig 2 in ERL
 barplot6_f(scen_diff_upd, "PROD", "AGR")
 ```
 
@@ -48,7 +48,7 @@ barplot2_f(TOTAL_WLD, "AREA", "CRP", ypos = 1.45, 0.5, 1.5)
 barplot3_f(TOTAL_WLD, "AREA", "CRP", ypos = 40, -15, 45)
 barplot4_f(TOTAL_WLD_mean, "AREA", "CRP")
 barplot5_f(scen_diff, "AREA", "CRP")
-barplot6_f(scen_diff, "AREA", "CRP")
+barplot6_f(scen_diff, "AREA", "CRP") # Fig 3a in ERL
 barplot6_f(scen_diff_upd, "AREA", "CRP")
 
 ```
@@ -61,7 +61,7 @@ barplot2_f(TOTAL_WLD, "AREA", "LSP", ypos = 1.45, 0.5, 1.5)
 barplot3_f(TOTAL_WLD, "AREA", "LSP", ypos = 20, -25, 25)
 barplot4_f(TOTAL_WLD_mean, "AREA", "LSP")
 barplot5_f(scen_diff, "AREA", "LSP")
-barplot6_f(scen_diff, "AREA", "LSP")
+barplot6_f(scen_diff, "AREA", "LSP") # Fig 3b in ERL
 barplot6_f(scen_diff_upd, "AREA", "LSP")
 ```
 
@@ -73,7 +73,7 @@ barplot3_f(TOTAL_WLD, "XPRP", "AGR", ypos = 160, -40, 170)
 barplot4_f(TOTAL_WLD_mean, "XPRP", "AGR")
 barplot5_f(scen_diff, "XPRP", "AGR")
 barplot6_f(scen_diff, "XPRP", "AGR")
-barplot6_f(scen_diff_upd, "XPRP", "AGR")
+barplot6_f(scen_diff_upd, "XPRP", "AGR") # FIg 4 in ERL
 ```
 
 
@@ -84,7 +84,7 @@ barplot3_f(TOTAL_WLD, "XPRP", "LSP", ypos = 160, -30, 170)
 barplot4_f(TOTAL_WLD_mean, "XPRP", "LSP")
 barplot5_f(scen_diff, "XPRP", "LSP")
 barplot6_f(scen_diff, "XPRP", "LSP")
-barplot6_f(scen_diff_upd, "XPRP", "LSP")
+barplot6_f(scen_diff_upd, "XPRP", "LSP") 
 ```
 
 
@@ -95,7 +95,7 @@ barplot2_f(TOTAL_WLD, "ECH4", "AGR", ypos = 1.9, 0.5, 2)
 barplot3_f(TOTAL_WLD, "ECH4", "AGR", ypos = 90, -50, 100)
 barplot4_f(TOTAL_WLD_mean, "ECH4", "AGR")
 barplot5_f(scen_diff, "ECH4", "AGR")
-barplot6_f(scen_diff, "ECH4", "AGR")
+barplot6_f(scen_diff, "ECH4", "AGR") # used in ERL
 barplot6_f(scen_diff_upd, "ECH4", "AGR")
 ```
 
@@ -105,7 +105,7 @@ barplot2_f(TOTAL_WLD, "EN2O", "AGR", ypos = 1.9, 0.5, 2)
 barplot3_f(TOTAL_WLD, "EN2O", "AGR", ypos = 90, -50, 100)
 barplot4_f(TOTAL_WLD_mean, "EN2O", "AGR")
 barplot5_f(scen_diff, "EN2O", "AGR")
-barplot6_f(scen_diff, "EN2O", "AGR")
+barplot6_f(scen_diff, "EN2O", "AGR") # used in ERL
 barplot6_f(scen_diff_upd, "EN2O", "AGR")
 ```
 
@@ -114,8 +114,8 @@ barplot6_f(scen_diff_upd, "EN2O", "AGR")
 barplot2_f(TOTAL_WLD, "EMIS", "AGR", ypos = 1.9, 0.5, 2)
 barplot3_f(TOTAL_WLD, "EMIS", "AGR", ypos = 90, -50, 100)
 barplot4_f(TOTAL_WLD_mean, "EMIS", "AGR")
-barplot5_f(scen_diff, "EMIS", "AGR")
-barplot6_f(scen_diff, "EMIS", "AGR")
+barplot5_f(scen_diff, "EMIS", "AGR") 
+barplot6_f(scen_diff, "EMIS", "AGR") # Fig 1 in ERL
 barplot6_f(scen_diff_upd, "EMIS", "AGR")
 ```
 
